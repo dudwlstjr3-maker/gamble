@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const { LOCAL, FONT_HOSTS, openGame, stored, openTab, setBet, bankIs } = require('./helpers.cjs');
 const GAMES = ['blackjack', 'baccarat', 'oddeven', 'crash', 'mines', 'plinko'];
+const NO_SQUEEZE = { v: 1, prefs: { bacSqueeze: false } };
 
 test('six games share one wallet, no forms, and nothing leaves the device', async ({ page }) => {
   const { app, errors, hosts } = await openGame(page);
@@ -98,8 +99,9 @@ test('blackjack keyboard shortcuts', async ({ page }) => {
 });
 
 test('baccarat follows the third-card tableau and takes 5% on banker wins', async ({ page }) => {
-  const { app, errors } = await openGame(page, { test: { baccarat: ['2S', 'KH', '3D', '6C', '7H', '2D'] } });
+  const { app, errors } = await openGame(page, { saved: NO_SQUEEZE, test: { baccarat: ['2S', 'KH', '3D', '6C', '7H', '2D'] } });
   await openTab(app, 'baccarat');
+  await expect(app.locator('#bacSqBtn')).toHaveAttribute('aria-pressed', 'false');
   await expect(app.locator('[data-act="bac-side"][data-v="banker"]')).toHaveAttribute('aria-pressed', 'true');
   await setBet(app, 'baccarat', 100);
   await app.locator('[data-act="bac-deal"]').click();
@@ -113,7 +115,7 @@ test('baccarat follows the third-card tableau and takes 5% on banker wins', asyn
 });
 
 test('baccarat natural tie returns player and banker bets', async ({ page }) => {
-  const { app, errors } = await openGame(page, { test: { baccarat: ['AS', '5D', '7H', '3C'] } });
+  const { app, errors } = await openGame(page, { saved: NO_SQUEEZE, test: { baccarat: ['AS', '5D', '7H', '3C'] } });
   await openTab(app, 'baccarat');
   await app.locator('[data-act="bac-side"][data-v="player"]').click();
   await app.locator('[data-act="bac-deal"]').click();
@@ -122,6 +124,59 @@ test('baccarat natural tie returns player and banker bets', async ({ page }) => 
   await expect(app.locator('#bacRoad .bead.T')).toHaveCount(1);
   await bankIs(app, 1000);
   expect((await stored(app)).prefs.bacSide).toBe('player');
+  expect(errors).toEqual([]);
+});
+
+test('baccarat squeeze: peel the banker cards by drag, keys and the open button', async ({ page }) => {
+  const { app, errors } = await openGame(page, { test: { baccarat: ['2S', 'KH', '3D', '6C', '7H', '2D'] } });
+  await openTab(app, 'baccarat');
+  await expect(app.locator('#bacSqBtn')).toHaveAttribute('aria-pressed', 'true');
+  await app.locator('[data-act="bac-deal"]').click();
+  const card = app.locator('#sqCard');
+  await expect(app.locator('#sqLabel')).toHaveText('뱅커 첫 번째 카드');
+  await expect(app.locator('#bacZones')).toBeHidden();
+  await expect(app.locator('#bacPrint')).toBeHidden();
+  await expect(app.locator('#bacPT')).toHaveText('5');
+  await expect(app.locator('#bacB .card.back')).toHaveCount(2);
+  await expect(card).toBeFocused();
+  const sqAudit = await app.locator('#bacSqueeze').evaluate(el => [...el.querySelectorAll('button')].map(b => b.getBoundingClientRect()).every(r => r.width >= 44 && r.height >= 44));
+  expect(sqAudit).toBe(true);
+  // A short drag from the bottom edge bends the card without opening it.
+  let box = await card.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height - 4);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.7, { steps: 6 });
+  await page.mouse.up();
+  const peeled = Number(await card.getAttribute('aria-valuenow'));
+  expect(peeled).toBeGreaterThan(20);
+  expect(peeled).toBeLessThan(62);
+  expect(await app.locator('#sqBack').evaluate(e => e.style.clipPath)).toMatch(/^inset\(0(px)? 0(px)? /);
+  await expect(app.locator('#bacB .card.back')).toHaveCount(2);
+  // Dragging further opens it.
+  box = await card.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height - 4);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.35, { steps: 6 });
+  await page.mouse.up();
+  await expect(app.locator('#bacBT')).toHaveText('0');
+  await expect(app.locator('#sqLabel')).toHaveText('뱅커 두 번째 카드');
+  // Keyboard: left arrow peels from the side; 90% opens.
+  await card.focus();
+  for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft');
+  await expect(card).toHaveAttribute('aria-valuenow', '40');
+  await expect(app.locator('[data-act="sq-peek"][data-v="bottom"]')).toBeDisabled();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowLeft');
+  await expect(app.locator('#bacBT')).toHaveText('6');
+  // The player's third card is turned by the dealer; the banker's third comes back to the squeeze.
+  await expect(app.locator('#sqLabel')).toHaveText('뱅커 세 번째 카드');
+  await expect(app.locator('#bacPT')).toHaveText('2');
+  await app.locator('[data-act="sq-open"]').click();
+  await expect(app.locator('#bacMsg')).toContainText('플레이어 2 : 뱅커 8, 뱅커 승. +47칩');
+  await expect(app.locator('#bacSqueeze')).toBeHidden();
+  await expect(app.locator('#bacB .card.back')).toHaveCount(0);
+  await bankIs(app, 1047);
+  await app.locator('#bacSqBtn').click();
+  expect((await stored(app)).prefs.bacSqueeze).toBe(false);
   expect(errors).toEqual([]);
 });
 
@@ -271,7 +326,7 @@ test('every tab fits, keeps 44px targets and AA contrast after a round', async (
     crash: [1.02], mines: [[0, 1, 2]], plinko: [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]] } });
   const play = {
     blackjack: async () => { await app.locator('[data-act="bj-deal"]').click(); await expect(app.locator('#bjMsg')).toContainText('블랙잭'); },
-    baccarat: async () => { await app.locator('[data-act="bac-deal"]').click(); await expect(app.locator('#bacRoad .bead')).toHaveCount(1); },
+    baccarat: async () => { await app.locator('[data-act="bac-deal"]').click(); for (let i = 0; i < 3; i++) await app.locator('[data-act="sq-open"]').click(); await expect(app.locator('#bacRoad .bead')).toHaveCount(1); },
     oddeven: async () => { await app.locator('[data-act="oe-play"]').click(); await expect(app.locator('#oeBowl .stone')).toHaveCount(7); },
     crash: async () => { await app.locator('[data-act="cr-start"]').click(); await expect(app.locator('#crHist span').first()).toHaveText('1.02×'); },
     mines: async () => { await app.locator('[data-act="mn-start"]').click(); await app.locator('.tile[data-i="0"]').click(); await expect(app.locator('.tile.boom')).toHaveCount(1); },

@@ -21,6 +21,7 @@
   --heat-0:#CFE0D5; --heat-1:#E9D9A8; --heat-2:#F2B880; --heat-3:#F28B7D;
   --chip-10:#2456A6; --chip-50:#B0232D; --chip-100:#232323; --chip-500:#5D2C8A; --chip-ink:#FFFFFF; --chip-edge:#F4ECD8;
   --stone:#F3F0E8; --stone-edge:#B9B2A2; --lid:#8A5A32; --lid-2:#A8713F;
+  --court:#F1E3BF; --curl-hi:rgba(255,255,255,.65); --curl-shadow:rgba(0,0,0,.38);
   --focus-room:#18231F; --focus-felt:#F5C842; --shadow:rgba(8,20,16,.28);
   --display:"Bodoni Moda","Bodoni 72","Didot","Noto Serif KR","Noto Serif CJK KR",serif;
   --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;
@@ -166,6 +167,31 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .bead{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 11px/1 var(--sans);color:var(--bead-ink)}
 .bead.P{background-color:var(--player)} .bead.B{background-color:var(--banker)} .bead.T{background-color:var(--tie)}
 
+/* baccarat squeeze: the bettor's cards stay face down until peeled from the bottom or the side */
+.squeeze{display:flex;flex-direction:column;align-items:center;gap:10px}
+.sq-label{font-weight:700;letter-spacing:.04em}
+.sq-card{--sw:min(200px,54vw);position:relative;width:var(--sw);height:calc(var(--sw)*1.4);border-radius:calc(var(--sw)*.07);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;box-shadow:0 12px 26px -10px var(--shadow)}
+.sq-card:active{cursor:grabbing}
+.sq-face,.sq-back{position:absolute;inset:0;border-radius:inherit}
+.sq-face{background-color:var(--card);border:1px solid var(--card-edge);color:var(--suit-black);overflow:hidden}
+.sq-face.red{color:var(--suit-red)}
+.sq-face i{position:absolute;transform:translate(-50%,-50%);font-style:normal;font-family:var(--sans);font-size:calc(var(--sw)*.17);line-height:1}
+.sq-face i.flip{transform:translate(-50%,-50%) rotate(180deg)}
+.sq-face i.ace{font-size:calc(var(--sw)*.42)}
+.sq-court{position:absolute;inset:13% 17%;border:2px solid currentColor;border-radius:6px;background-color:var(--court);display:grid;place-items:center;align-content:center;gap:6px;font:700 calc(var(--sw)*.34)/1 var(--display)}
+.sq-court span{font:calc(var(--sw)*.14)/1 var(--sans)}
+.sq-back{background-color:var(--back);background-image:repeating-linear-gradient(45deg,var(--back-line) 0 1px,transparent 1px 8px),repeating-linear-gradient(-45deg,var(--back-line) 0 1px,transparent 1px 8px);border:5px solid var(--card)}
+.sq-card.opening .sq-back{transition:clip-path .35s ease-out}
+.sq-curl{position:absolute;pointer-events:none}
+.sq-curl:not(.h):not(.v){display:none}
+.sq-curl.h{left:0;right:0;height:14%;transform:translateY(50%);background:linear-gradient(to bottom,transparent,var(--curl-hi) 46%,var(--curl-shadow) 52%,transparent)}
+.sq-curl.v{top:0;bottom:0;width:14%;transform:translateX(50%);background:linear-gradient(to right,transparent,var(--curl-hi) 46%,var(--curl-shadow) 52%,transparent)}
+.sq-hint{font-size:12px;color:var(--on-felt-soft);text-align:center}
+.sq-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:340px}
+.sq-btns button{background-color:var(--felt-2);border:1px solid var(--felt-line);color:var(--on-felt);font-weight:600}
+.sq-btns .primary{background-color:var(--brass);color:var(--brass-ink);border-color:transparent}
+.ghost[aria-pressed="true"]{background-color:var(--brass);color:var(--brass-ink);border-color:var(--brass)}
+
 /* odd-even */
 .bowl{position:relative;width:min(190px,58vw);aspect-ratio:1;max-width:100%;margin:4px auto 0;border-radius:50%;background-color:var(--felt-2);box-shadow:inset 0 6px 18px rgba(0,0,0,.45),0 0 0 6px var(--lid),0 0 0 8px var(--lid-2)}
 .stone{position:absolute;width:12%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background-color:var(--stone);background-image:radial-gradient(circle at 35% 30%,rgba(255,255,255,.9) 0 18%,transparent 45%);box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 -2px 3px var(--stone-edge)}
@@ -229,7 +255,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
 
 @media (prefers-reduced-motion:reduce){
   .card.enter,.card.flip,.bowl.open .stone,.bowl.shaking .lid{animation:none}
-  .tile,.pslot,.wallet strong{transition:none}
+  .tile,.pslot,.wallet strong,.sq-card.opening .sq-back{transition:none}
 }
 </style>
 </head>
@@ -291,8 +317,22 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
           <div class="bac-side" id="bacPSide"><div class="seat-head"><h2>플레이어</h2><span class="pill" id="bacPT" hidden></span></div><div class="hand-cards" id="bacP"></div></div>
           <div class="bac-side" id="bacBSide"><div class="seat-head"><h2>뱅커</h2><span class="pill" id="bacBT" hidden></span></div><div class="hand-cards" id="bacB"></div></div>
         </div>
-        <svg class="print" viewBox="0 0 320 58" aria-hidden="true"><path id="bacArc" d="M14 54 Q160 -2 306 54" fill="none"/><text fill="currentColor"><textPath href="#bacArc" startOffset="50%" text-anchor="middle">TIE PAYS 8 TO 1</textPath></text></svg>
-        <div class="zones" role="group" aria-label="걸 곳">
+        <svg class="print" id="bacPrint" viewBox="0 0 320 58" aria-hidden="true"><path id="bacArc" d="M14 54 Q160 -2 306 54" fill="none"/><text fill="currentColor"><textPath href="#bacArc" startOffset="50%" text-anchor="middle">TIE PAYS 8 TO 1</textPath></text></svg>
+        <div class="squeeze" id="bacSqueeze" hidden>
+          <p class="sq-label" id="sqLabel"></p>
+          <div class="sq-card" id="sqCard" tabindex="0" role="slider" aria-label="카드 쪼기" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-describedby="sqHint">
+            <div class="sq-face" id="sqFace" aria-hidden="true"></div>
+            <div class="sq-back" id="sqBack" aria-hidden="true"></div>
+            <div class="sq-curl" id="sqCurl" aria-hidden="true"></div>
+          </div>
+          <p class="sq-hint" id="sqHint">위로 끌어 올리거나 왼쪽으로 밀어서 쪼세요. 화살표 키로도 돼요.</p>
+          <div class="sq-btns">
+            <button type="button" data-act="sq-peek" data-v="bottom">아래 쪼기</button>
+            <button type="button" data-act="sq-peek" data-v="side">옆 쪼기</button>
+            <button type="button" class="primary" data-act="sq-open">열기</button>
+          </div>
+        </div>
+        <div class="zones" id="bacZones" role="group" aria-label="걸 곳">
           <button type="button" class="zone zp" data-act="bac-side" data-v="player" aria-pressed="false">플레이어<small>1 : 1</small></button>
           <button type="button" class="zone zt" data-act="bac-side" data-v="tie" aria-pressed="false">타이<small>8 : 1</small></button>
           <button type="button" class="zone zb" data-act="bac-side" data-v="banker" aria-pressed="true">뱅커<small>0.95 : 1</small></button>
@@ -305,6 +345,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
       </div>
       <div class="rail">
         <div data-betbar="baccarat"></div>
+        <div class="field"><button type="button" class="ghost" data-act="bac-squeeze" id="bacSqBtn" aria-pressed="true">카드 쪼기 켬</button><span class="hint">건 쪽 카드를 직접 쪼아서 열어요</span></div>
         <button type="button" class="go" data-act="bac-deal" data-primary id="bacDealBtn">딜</button>
       </div>
     </section>
@@ -388,7 +429,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
       <summary>게임 규칙</summary>
       <ul class="rules">
         <li><b>블랙잭</b> 6덱 슈, 75%를 쓰면 다음 판 전에 섞어요. 딜러는 소프트 17을 포함한 모든 17에서 멈춰요. 블랙잭은 3:2. 처음 두 장에서 더블. 같은 점수 두 장은 4패까지 스플릿, A 스플릿은 한 장씩만. 딜러 업카드가 A나 10이면 블랙잭을 먼저 확인해요. 보험·서렌더는 없어요. 단축키 H 히트, S 스탠드, D 더블, P 스플릿.</li>
-        <li><b>바카라</b> 8덱. 플레이어 1:1, 뱅커 0.95:1(수수료 5%), 타이 8:1. 타이가 나오면 플레이어·뱅커에 건 칩은 돌려받아요. 기록표의 환수율은 뱅커 기준(플레이어 98.8%, 타이 85.6%)이에요. 세 번째 카드는 표준 푼토 방코 규칙대로 옆으로 놓여요.</li>
+        <li><b>바카라</b> 8덱. 플레이어 1:1, 뱅커 0.95:1(수수료 5%), 타이 8:1. 타이가 나오면 플레이어·뱅커에 건 칩은 돌려받아요. 기록표의 환수율은 뱅커 기준(플레이어 98.8%, 타이 85.6%)이에요. 세 번째 카드는 표준 푼토 방코 규칙대로 옆으로 놓여요. 카드 쪼기를 켜면 건 쪽(타이는 플레이어) 카드가 뒤집힌 채 오고, 아래나 옆에서부터 직접 쪼아 열어요.</li>
         <li><b>홀짝</b> 바둑통 안 돌은 1~20개 중 무작위예요. 맞히면 1.95배.</li>
         <li><b>그래프</b> 배수가 1.00부터 오르다 무작위 지점에서 터져요. 터지기 전에 캐시아웃하면 그 배수만큼 받아요. 100판에 한 번꼴로 1.00에서 바로 터져요.</li>
         <li><b>마인</b> 5×5 칸에 지뢰 1~24개. 보석 칸을 열 때마다 배수가 올라요. 지뢰를 열면 건 칩을 잃어요.</li>
@@ -433,7 +474,7 @@ var W={bank:START,inPlay:0,best:START,refills:0};
 var G={};
 GAMES.forEach(function(g){G[g]={bet:50,rounds:0,wins:0,net:0}});
 G.blackjack.bj=0;
-var P={tab:'blackjack',bacSide:'banker',oePick:'odd',crAuto:'2.00',mines:3,plRisk:'mid'};
+var P={tab:'blackjack',bacSide:'banker',bacSqueeze:true,oePick:'odd',crAuto:'2.00',mines:3,plRisk:'mid'};
 
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify({v:1,chips:W.bank+W.inPlay,best:W.best,refills:W.refills,games:G,prefs:P}))}catch(e){}
@@ -454,6 +495,7 @@ function load(){
   if(GAMES.indexOf(p.tab)>=0)P.tab=p.tab;
   if(['player','tie','banker'].indexOf(p.bacSide)>=0)P.bacSide=p.bacSide;
   if(['odd','even'].indexOf(p.oePick)>=0)P.oePick=p.oePick;
+  P.bacSqueeze=p.bacSqueeze!==false;
   if(typeof p.crAuto==='string'&&p.crAuto.length<=10)P.crAuto=p.crAuto;
   P.mines=int(p.mines,1,24,3);
   if(PL_TABLE[p.plRisk])P.plRisk=p.plRisk;
@@ -630,7 +672,7 @@ function renderBJ(){
 
 /* ---------- baccarat ---------- */
 var BAC_DECKS=8,BAC_CUT=52;
-var BAC={shoe:makeShoe(BAC_DECKS),player:[],banker:[],phase:'bet',last:'',road:[],msg:'걸 곳을 고르고 딜을 누르세요',tone:''};
+var BAC={shoe:makeShoe(BAC_DECKS),player:[],banker:[],hidden:{},sq:null,sqSide:null,phase:'bet',last:'',road:[],msg:'걸 곳을 고르고 딜을 누르세요',tone:''};
 function bacDraw(){var t=queue('baccarat');if(t.length)return String(t.shift());if(!BAC.shoe.length)BAC.shoe=makeShoe(BAC_DECKS);return BAC.shoe.pop()}
 function bacPt(c){var r=rk(c);return r==='A'?1:(r==='10'||r==='J'||r==='Q'||r==='K')?0:+r}
 function bacTot(cs){return cs.reduce(function(s,c){return s+bacPt(c)},0)%10}
@@ -651,13 +693,17 @@ async function bacDeal(){
   var note='';
   if(BAC.shoe.length<BAC_CUT){BAC.shoe=makeShoe(BAC_DECKS);note='새 슈를 섞었어요. '}
   forget('bac:');
-  BAC.phase='deal';BAC.player=[];BAC.banker=[];BAC.last='';BAC.msg=note+'카드를 나눠요';BAC.tone='';
+  BAC.phase='deal';BAC.player=[];BAC.banker=[];BAC.last='';BAC.sq=null;
+  BAC.sqSide=P.bacSqueeze?(side==='banker'?'b':'p'):null;
+  BAC.msg=note+(BAC.sqSide?(BAC.sqSide==='p'?'플레이어':'뱅커')+' 카드는 직접 쪼아서 여세요':'카드를 나눠요');BAC.tone='';
   BAC.player.push(bacDraw());BAC.banker.push(bacDraw());BAC.player.push(bacDraw());BAC.banker.push(bacDraw());
-  renderAll();await wait(pace(800));
+  BAC.hidden={p0:1,b0:1,p1:1,b1:1};
+  renderAll();await wait(pace(600));
+  await bacOpen('p',0);await bacOpen('p',1);await bacOpen('b',0);await bacOpen('b',1);
   var p=bacTot(BAC.player),b=bacTot(BAC.banker),p3=null,natural=p>=8||b>=8;
   if(!natural){
-    if(p<=5){var c=bacDraw();BAC.player.push(c);p3=bacPt(c);p=bacTot(BAC.player);renderBac();await wait(pace(650))}
-    if(bacBankerDraws(b,p3)){BAC.banker.push(bacDraw());b=bacTot(BAC.banker);renderBac();await wait(pace(650))}
+    if(p<=5){var c=bacDraw();BAC.player.push(c);BAC.hidden.p2=1;renderBac();await wait(pace(350));await bacOpen('p',2);p3=bacPt(c);p=bacTot(BAC.player)}
+    if(bacBankerDraws(b,p3)){BAC.banker.push(bacDraw());BAC.hidden.b2=1;renderBac();await wait(pace(350));await bacOpen('b',2);b=bacTot(BAC.banker)}
   }
   var win=p>b?'P':b>p?'B':'T',paid=0,res='lose';
   if(win==='T'){if(side==='tie'){paid=bet*9;res='win'}else{paid=bet;res='push'}}
@@ -671,12 +717,78 @@ async function bacDeal(){
   BAC.tone=net>0?'win':net<0?'lose':'push';
   BAC.phase='bet';renderAll();focusAction('baccarat');
 }
+// Reveal one card: the bettor's side is squeezed by hand, the other side is turned by the dealer.
+function bacOpen(who,i){
+  var key=who+i,reveal=function(){delete BAC.hidden[key];renderBac()};
+  if(BAC.sqSide!==who)return wait(pace(650)).then(reveal);
+  return new Promise(function(done){
+    BAC.sq={who:who,i:i,edge:null,r:0,opening:false,done:done};
+    renderBac();sqPaint(true);
+    if(P.tab!=='baccarat')return;
+    var card=$('sqCard'),r=card.getBoundingClientRect();
+    if(r.top<70||r.bottom>window.innerHeight)card.scrollIntoView({block:'center',behavior:reduce.matches?'auto':'smooth'});
+    card.focus({preventScroll:true});
+  }).then(reveal);
+}
+var PIPS={
+  '2':[[50,20],[50,80]],
+  '3':[[50,20],[50,50],[50,80]],
+  '4':[[30,20],[70,20],[30,80],[70,80]],
+  '5':[[30,20],[70,20],[50,50],[30,80],[70,80]],
+  '6':[[30,20],[70,20],[30,50],[70,50],[30,80],[70,80]],
+  '7':[[30,20],[70,20],[50,35],[30,50],[70,50],[30,80],[70,80]],
+  '8':[[30,20],[70,20],[50,35],[30,50],[70,50],[50,65],[30,80],[70,80]],
+  '9':[[30,20],[70,20],[30,40],[70,40],[50,50],[30,60],[70,60],[30,80],[70,80]],
+  '10':[[30,20],[70,20],[50,30],[30,40],[70,40],[30,60],[70,60],[50,70],[30,80],[70,80]]
+};
+// The squeeze face has pips but no corner index, so the side pips give the value away first.
+function sqFaceHTML(c){
+  var r=rk(c),sym=SUITS[su(c)][0]+'\uFE0E';
+  if(r==='A')return '<i class="ace" style="left:50%;top:50%">'+sym+'</i>';
+  if(PIPS[r])return PIPS[r].map(function(q){return '<i'+(q[1]>50?' class="flip"':'')+' style="left:'+q[0]+'%;top:'+q[1]+'%">'+sym+'</i>'}).join('');
+  return '<div class="sq-court"><b>'+r+'</b><span>'+sym+'</span></div>';
+}
+var SQ_ORD=['첫 번째','두 번째','세 번째'],sqDrag=null;
+function sqPaint(fresh){
+  var s=BAC.sq;if(!s)return;
+  var card=$('sqCard'),back=$('sqBack'),curl=$('sqCurl'),pct=(s.r*100).toFixed(1)+'%';
+  if(fresh){
+    var c=(s.who==='p'?BAC.player:BAC.banker)[s.i],face=$('sqFace');
+    face.innerHTML=sqFaceHTML(c);face.className='sq-face'+(SUITS[su(c)][2]?' red':'');
+    $('sqLabel').textContent=(s.who==='p'?'플레이어 ':'뱅커 ')+SQ_ORD[s.i]+' 카드';
+    card.classList.remove('opening');
+  }
+  back.style.clipPath=!s.edge||s.r<=0?'none':s.edge==='bottom'?'inset(0 0 '+pct+' 0)':'inset(0 '+pct+' 0 0)';
+  curl.className='sq-curl'+(s.edge&&s.r>0&&s.r<1?(s.edge==='bottom'?' h':' v'):'');
+  curl.style.cssText=s.edge==='bottom'?'bottom:'+pct:s.edge==='side'?'right:'+pct:'';
+  card.setAttribute('aria-valuenow',String(Math.round(s.r*100)));
+  card.setAttribute('aria-valuetext',Math.round(s.r*100)+'% 열림');
+  document.querySelectorAll('[data-act="sq-peek"]').forEach(function(b){b.disabled=s.opening||(!!s.edge&&s.edge!==b.dataset.v&&s.r>0)});
+  document.querySelector('[data-act="sq-open"]').disabled=s.opening;
+}
+function sqPeel(edge,delta){
+  var s=BAC.sq;if(!s||s.opening)return;
+  if(s.edge&&s.edge!==edge&&s.r>0)return;
+  s.edge=edge;s.r=Math.max(0,Math.min(1,Math.round((s.r+delta)*100)/100));
+  if(s.r<=0)s.edge=null;
+  if(s.r>=0.9)return sqOpen();
+  sqPaint();
+}
+function sqOpen(){
+  var s=BAC.sq;if(!s||s.opening)return;
+  s.opening=true;sqDrag=null;s.edge=s.edge||'bottom';s.r=1;
+  $('sqCard').classList.add('opening');sqPaint();
+  setTimeout(function(){if(BAC.sq===s)BAC.sq=null;s.done()},pace(380));
+}
 function renderBac(){
-  var mk=function(list,who){return list.map(function(c,i){return {c:c,key:'bac:'+who+':'+i,face:true,cls:i===2?' side':''}})};
+  var mk=function(list,who){return list.map(function(c,i){return {c:c,key:'bac:'+who+':'+i,face:!BAC.hidden[who+i],cls:i===2?' side':''}})};
+  var shown=function(list,who){var r=list.filter(function(c,i){return !BAC.hidden[who+i]});return r.length?String(bacTot(r)):''};
   $('bacP').innerHTML=BAC.player.length?cardsHTML(mk(BAC.player,'p')):slotsHTML(2);
   $('bacB').innerHTML=BAC.banker.length?cardsHTML(mk(BAC.banker,'b')):slotsHTML(2);
-  setPill($('bacPT'),BAC.player.length?String(bacTot(BAC.player)):'');
-  setPill($('bacBT'),BAC.banker.length?String(bacTot(BAC.banker)):'');
+  setPill($('bacPT'),shown(BAC.player,'p'));
+  setPill($('bacBT'),shown(BAC.banker,'b'));
+  $('bacSqueeze').hidden=!BAC.sq;$('bacZones').hidden=!!BAC.sq;$('bacPrint').toggleAttribute('hidden',!!BAC.sq);
+  var sq=$('bacSqBtn');sq.setAttribute('aria-pressed',String(P.bacSqueeze));sq.textContent=P.bacSqueeze?'카드 쪼기 켬':'카드 쪼기 끔';sq.disabled=BAC.phase!=='bet';
   $('bacPSide').classList.toggle('won',BAC.last==='P');
   $('bacBSide').classList.toggle('won',BAC.last==='B');
   document.querySelectorAll('[data-act="bac-side"]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===P.bacSide));b.disabled=BAC.phase!=='bet'});
@@ -1034,6 +1146,9 @@ document.addEventListener('click',function(e){
     case 'bj-split':bjAct('split');break;
     case 'bac-side':if(BAC.phase==='bet'){P.bacSide=v;save();renderBac()}break;
     case 'bac-deal':bacDeal();break;
+    case 'bac-squeeze':if(BAC.phase==='bet'){P.bacSqueeze=!P.bacSqueeze;save();renderBac()}break;
+    case 'sq-peek':sqPeel(v,0.2);break;
+    case 'sq-open':sqOpen();break;
     case 'oe-pick':if(OE.phase==='bet'){P.oePick=v;save();renderOE()}break;
     case 'oe-play':oePlay();break;
     case 'cr-start':crStart();break;
@@ -1059,6 +1174,36 @@ document.querySelector('.tabs').addEventListener('keydown',function(e){
   if(e.key==='ArrowRight')to=(i+1)%n;else if(e.key==='ArrowLeft')to=(i-1+n)%n;else if(e.key==='Home')to=0;else if(e.key==='End')to=n-1;
   if(to!==null){e.preventDefault();selectTab(GAMES[to],true)}
 });
+(function(){
+  var card=$('sqCard');
+  card.addEventListener('pointerdown',function(e){
+    if(!BAC.sq||BAC.sq.opening)return;
+    sqDrag={id:e.pointerId,x:e.clientX,y:e.clientY,r0:BAC.sq.r};
+    try{card.setPointerCapture(e.pointerId)}catch(_){}
+    e.preventDefault();
+  });
+  card.addEventListener('pointermove',function(e){
+    var s=BAC.sq;if(!sqDrag||e.pointerId!==sqDrag.id||!s||s.opening)return;
+    var dx=sqDrag.x-e.clientX,dy=sqDrag.y-e.clientY;
+    if(!s.edge){if(Math.max(Math.abs(dx),Math.abs(dy))<6)return;s.edge=Math.abs(dy)>=Math.abs(dx)?'bottom':'side'}
+    var rect=card.getBoundingClientRect(),d=s.edge==='bottom'?dy/rect.height:dx/rect.width;
+    s.r=Math.max(0,Math.min(1,sqDrag.r0+d));
+    if(s.r>=0.95)return sqOpen();
+    sqPaint();
+  });
+  var end=function(){
+    if(!sqDrag)return;sqDrag=null;var s=BAC.sq;if(!s||s.opening)return;
+    if(s.r>=0.62)return sqOpen();
+    if(s.r<=0)s.edge=null;
+    sqPaint();
+  };
+  card.addEventListener('pointerup',end);card.addEventListener('pointercancel',end);
+  card.addEventListener('keydown',function(e){
+    var k={ArrowUp:['bottom',.1],ArrowDown:['bottom',-.1],ArrowLeft:['side',.1],ArrowRight:['side',-.1]}[e.key];
+    if(k){e.preventDefault();sqPeel(k[0],k[1])}
+    else if(e.key==='Enter'||e.key===' '){e.preventDefault();sqOpen()}
+  });
+})();
 $('crAuto').addEventListener('input',function(e){P.crAuto=e.target.value;save()});
 $('crAuto').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();crStart()}});
 $('mnCount').addEventListener('change',function(e){P.mines=int(e.target.value,1,24,3);save();renderMines()});
