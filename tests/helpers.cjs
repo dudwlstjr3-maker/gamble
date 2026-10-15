@@ -43,4 +43,26 @@ async function setBet(app, game, amount) {
 
 async function bankIs(app, n) { await expect(app.locator('#bank')).toHaveText(n.toLocaleString('ko-KR')); }
 
-module.exports = { KEY, LOCAL, FONT_HOSTS, openGame, stored, openTab, setBet, bankIs };
+// Layout, 44px targets, labels and AA text contrast for everything visible in the frame.
+async function auditPage(app) {
+  return app.locator('body').evaluate(() => {
+    const shown = e => e.getClientRects().length && !e.closest('[hidden]') && getComputedStyle(e).visibility !== 'hidden';
+    const small = [...document.querySelectorAll('button,input,select,summary,a')].filter(shown).map(e => ({ text: (e.textContent || e.id).trim().slice(0, 30), r: e.getBoundingClientRect() })).filter(x => x.r.width < 43.9 || x.r.height < 43.9).map(x => ({ text: x.text, w: x.r.width, h: x.r.height }));
+    const unlabeled = [...document.querySelectorAll('input,select')].filter(e => !e.labels?.length && !e.getAttribute('aria-label')).map(e => e.id);
+    function rgba(s) { return s.match(/[\d.]+/g).map(Number); }
+    function blend(a, b) { const alpha = a[3] ?? 1; return a.slice(0, 3).map((x, i) => x * alpha + b[i] * (1 - alpha)); }
+    function bg(e) { let c = [255, 255, 255]; const chain = []; for (let n = e; n && n.nodeType === 1; n = n.parentElement) chain.unshift(n); for (const n of chain) c = blend(rgba(getComputedStyle(n).backgroundColor), c); return c; }
+    function lum(c) { return c.map(v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0); }
+    const contrast = [];
+    for (const e of document.querySelectorAll('body *')) {
+      if (!shown(e) || e.matches(':disabled') || e.closest(':disabled') || ['SCRIPT', 'STYLE', 'OPTION'].includes(e.tagName)) continue;
+      const text = [...e.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join('');
+      if (!text) continue;
+      const st = getComputedStyle(e), back = bg(e), fore = blend(rgba(st.color), back), l = [lum(back), lum(fore)].sort((a, b) => b - a), ratio = (l[0] + .05) / (l[1] + .05);
+      if (ratio < 4.5) contrast.push({ text: text.slice(0, 30), ratio: Math.round(ratio * 100) / 100 });
+    }
+    return { overflow: document.documentElement.scrollWidth > innerWidth, small, unlabeled, contrast };
+  });
+}
+
+module.exports = { KEY, LOCAL, FONT_HOSTS, openGame, stored, openTab, setBet, bankIs, auditPage };

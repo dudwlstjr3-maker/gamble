@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
-const { LOCAL, FONT_HOSTS, openGame, stored, openTab, setBet, bankIs } = require('./helpers.cjs');
+const { LOCAL, FONT_HOSTS, openGame, stored, openTab, setBet, bankIs, auditPage } = require('./helpers.cjs');
 const GAMES = ['blackjack', 'baccarat', 'oddeven', 'crash', 'mines', 'plinko'];
 const NO_SQUEEZE = { v: 1, prefs: { bacSqueeze: false } };
 
@@ -109,7 +109,7 @@ test('baccarat follows the third-card tableau and takes 5% on banker wins', asyn
   await expect(app.locator('#bacP .card')).toHaveCount(3);
   await expect(app.locator('#bacB .card')).toHaveCount(3);
   await expect(app.locator('#bacP .card').nth(2)).toHaveClass(/side/);
-  await expect(app.locator('#bacRoad .bead.B')).toHaveCount(1);
+  await expect(app.locator('#sb-baccarat .sb-bead .bd.B')).toHaveCount(1);
   await bankIs(app, 1095);
   expect(errors).toEqual([]);
 });
@@ -121,7 +121,7 @@ test('baccarat natural tie returns player and banker bets', async ({ page }) => 
   await app.locator('[data-act="bac-deal"]').click();
   await expect(app.locator('#bacMsg')).toContainText('내추럴. 플레이어 8 : 뱅커 8, 타이. 건 칩을 돌려받았어요');
   await expect(app.locator('#bacP .card')).toHaveCount(2);
-  await expect(app.locator('#bacRoad .bead.T')).toHaveCount(1);
+  await expect(app.locator('#sb-baccarat .sb-bead .bd.T')).toHaveCount(1);
   await bankIs(app, 1000);
   expect((await stored(app)).prefs.bacSide).toBe('player');
   expect(errors).toEqual([]);
@@ -192,7 +192,8 @@ test('odd-even counts the stones and pays 1.95x', async ({ page }) => {
   await expect(app.locator('#oeCount')).toHaveText('8개 · 짝');
   await expect(app.locator('#oeMsg')).toContainText('틀렸어요 −100칩');
   await bankIs(app, 995);
-  await expect(app.locator('#oeHist span')).toHaveText(['짝', '홀']);
+  await expect(app.locator('#sb-oddeven .sb-bead .bd')).toHaveText(['13', '8']);
+  await expect(app.locator('#sb-oddeven .sb-stats')).toContainText('지금짝 1연속');
   expect(errors).toEqual([]);
 });
 
@@ -205,7 +206,8 @@ test('crash auto cash-out pays the target before the bust', async ({ page }) => 
   await expect(app.locator('#crCash')).toBeVisible();
   await expect(app.locator('#crMsg')).toContainText('1.10배에서 캐시아웃 +10칩', { timeout: 4000 });
   await bankIs(app, 1010);
-  await expect(app.locator('#crHist span').first()).toHaveText('2.00×', { timeout: 10000 });
+  await expect(app.locator('#sb-crash .chipsx span').first()).toHaveText('2.00×', { timeout: 10000 });
+  await expect(app.locator('#sb-crash .chipsx span.cashed')).toHaveCount(1);
   await expect(app.locator('#crGo')).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -326,40 +328,98 @@ test('every tab fits, keeps 44px targets and AA contrast after a round', async (
     crash: [1.02], mines: [[0, 1, 2]], plinko: [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]] } });
   const play = {
     blackjack: async () => { await app.locator('[data-act="bj-deal"]').click(); await expect(app.locator('#bjMsg')).toContainText('블랙잭'); },
-    baccarat: async () => { await app.locator('[data-act="bac-deal"]').click(); for (let i = 0; i < 3; i++) await app.locator('[data-act="sq-open"]').click(); await expect(app.locator('#bacRoad .bead')).toHaveCount(1); },
+    baccarat: async () => { await app.locator('[data-act="bac-deal"]').click(); for (let i = 0; i < 3; i++) await app.locator('[data-act="sq-open"]').click(); await expect(app.locator('#sb-baccarat .sb-bead .bd')).toHaveCount(1); },
     oddeven: async () => { await app.locator('[data-act="oe-play"]').click(); await expect(app.locator('#oeBowl .stone')).toHaveCount(7); },
-    crash: async () => { await app.locator('[data-act="cr-start"]').click(); await expect(app.locator('#crHist span').first()).toHaveText('1.02×'); },
+    crash: async () => { await app.locator('[data-act="cr-start"]').click(); await expect(app.locator('#sb-crash .chipsx span').first()).toHaveText('1.02×'); },
     mines: async () => { await app.locator('[data-act="mn-start"]').click(); await app.locator('.tile[data-i="0"]').click(); await expect(app.locator('.tile.boom')).toHaveCount(1); },
-    plinko: async () => { await app.locator('[data-act="pl-drop"]').click(); await expect(app.locator('#plHist span').first()).toHaveText('×33'); },
+    plinko: async () => { await app.locator('[data-act="pl-drop"]').click(); await expect(app.locator('#sb-plinko .sb-stats')).toContainText('최고×33'); },
   };
   await app.locator('details').evaluateAll(els => els.forEach(e => { e.open = true; }));
   for (const game of GAMES) {
     await openTab(app, game);
     await play[game]();
-    const audit = await app.locator('body').evaluate(() => {
-      const shown = e => e.getClientRects().length && !e.closest('[hidden]') && getComputedStyle(e).visibility !== 'hidden';
-      const small = [...document.querySelectorAll('button,input,select,summary,a')].filter(shown).map(e => ({ text: (e.textContent || e.id).trim().slice(0, 30), r: e.getBoundingClientRect() })).filter(x => x.r.width < 43.9 || x.r.height < 43.9).map(x => ({ text: x.text, w: x.r.width, h: x.r.height }));
-      const unlabeled = [...document.querySelectorAll('input,select')].filter(e => !e.labels?.length && !e.getAttribute('aria-label')).map(e => e.id);
-      function rgba(s) { return s.match(/[\d.]+/g).map(Number); }
-      function blend(a, b) { const alpha = a[3] ?? 1; return a.slice(0, 3).map((x, i) => x * alpha + b[i] * (1 - alpha)); }
-      function bg(e) { let c = [255, 255, 255]; const chain = []; for (let n = e; n && n.nodeType === 1; n = n.parentElement) chain.unshift(n); for (const n of chain) c = blend(rgba(getComputedStyle(n).backgroundColor), c); return c; }
-      function lum(c) { return c.map(v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0); }
-      const contrast = [];
-      for (const e of document.querySelectorAll('body *')) {
-        if (!shown(e) || e.matches(':disabled') || e.closest(':disabled') || ['SCRIPT', 'STYLE', 'OPTION'].includes(e.tagName)) continue;
-        const text = [...e.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join('');
-        if (!text) continue;
-        const st = getComputedStyle(e), back = bg(e), fore = blend(rgba(st.color), back), l = [lum(back), lum(fore)].sort((a, b) => b - a), ratio = (l[0] + .05) / (l[1] + .05);
-        if (ratio < 4.5) contrast.push({ text: text.slice(0, 30), ratio: Math.round(ratio * 100) / 100 });
-      }
-      return { overflow: document.documentElement.scrollWidth > innerWidth, small, unlabeled, contrast };
-    });
+    const audit = await auditPage(app);
     expect(audit.overflow, game).toBe(false);
     expect(audit.small, game).toEqual([]);
     expect(audit.unlabeled, game).toEqual([]);
     expect(audit.contrast, game).toEqual([]);
   }
   expect(errors).toEqual([]);
+});
+
+test('baccarat scoreboard: bead plate, big road with tie slash, derived roads and prediction', async ({ page }) => {
+  const hands = [['2S', '9H', '3D', '9C'], ['2S', '9H', '3D', 'KC'], ['9S', '2H', 'KD', '3C'], ['8S', '8H', 'KD', 'KC'], ['9S', '2H', 'KD', '3C'], ['9S', '2H', 'KD', '3C'], ['2S', '9H', '3D', 'KC']];
+  const { app, errors } = await openGame(page, { saved: NO_SQUEEZE, test: { baccarat: hands.flat() } });
+  await openTab(app, 'baccarat');
+  const sb = app.locator('#sb-baccarat');
+  for (let i = 0; i < hands.length; i++) {
+    await app.locator('[data-act="bac-deal"]').click();
+    await expect(sb.locator('.sb-bead .bd')).toHaveCount(i + 1);
+  }
+  await expect(sb.locator('.sb-bead .bd')).toHaveText(['B', 'B', 'P', 'T', 'P', 'P', 'B']);
+  await expect(sb.locator('.sb-bead .bpd')).toHaveCount(1);
+  await expect(sb.locator('.sb-big .br')).toHaveCount(6);
+  await expect(sb.locator('.sb-big .tie')).toHaveCount(1);
+  const pos = await sb.locator('.sb-big .rd > span').evaluateAll(els => els.map(e => [getComputedStyle(e).gridRowStart, getComputedStyle(e).gridColumnStart]));
+  expect(pos).toEqual([['1', '1'], ['2', '1'], ['1', '2'], ['2', '2'], ['3', '2'], ['1', '3']]);
+  await expect(sb.locator('.sb-eye .dv.R')).toHaveCount(1);
+  await expect(sb.locator('.sb-eye .dv.B')).toHaveCount(2);
+  await expect(sb.locator('.sb-small .dv')).toHaveCount(0);
+  const ask = sb.locator('.ask');
+  await expect(ask.nth(0).locator('.dv.eye.R, .dv.small.R, .dv.roach.none')).toHaveCount(3);
+  await expect(ask.nth(1).locator('.dv.eye.B, .dv.small.B, .dv.roach.none')).toHaveCount(3);
+  await expect(sb.locator('.sb-stats')).toContainText('슈1판7B3P3T1B페어1P페어0');
+  expect(errors).toEqual([]);
+});
+
+test('LED board mode fills the screen, steps through games and closes with Escape', async ({ page }) => {
+  const { app, errors } = await openGame(page, { test: { oddeven: [5, 6] } });
+  await openTab(app, 'oddeven');
+  await app.locator('[data-act="oe-play"]').click();
+  await app.locator('[data-act="oe-play"]').click();
+  await expect(app.locator('#sb-oddeven .sb-bead .bd')).toHaveText(['5', '6']);
+  const open = app.locator('[data-act="led-open"][data-g="oddeven"]');
+  await open.click();
+  const led = app.locator('#led');
+  await expect(led).toBeVisible();
+  await expect(app.locator('#ledTitle')).toHaveText('홀짝 기록판');
+  await expect(app.locator('#ledBody .sb-bead .bd')).toHaveText(['5', '6']);
+  await expect(app.locator('#ledClose')).toBeFocused();
+  expect(await app.locator('.app').evaluate(e => e.inert)).toBe(true);
+  expect(await app.locator('body').evaluate(() => location.hash)).toBe('#board-oddeven');
+  const box = await led.boundingBox();
+  expect(box.width).toBeGreaterThanOrEqual(page.viewportSize().width - 1);
+  const audit = await auditPage(app);
+  expect(audit.overflow).toBe(false);
+  expect(audit.small).toEqual([]);
+  expect(audit.contrast).toEqual([]);
+  await app.locator('[data-act="led-next"]').click();
+  await expect(app.locator('#ledTitle')).toHaveText('그래프 기록판');
+  await app.locator('[data-act="led-auto"]').click();
+  await expect(app.locator('#ledAuto')).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Escape');
+  await expect(led).toBeHidden();
+  await expect(open).toBeFocused();
+  expect(await app.locator('body').evaluate(() => location.hash)).toBe('#oddeven');
+  expect(errors).toEqual([]);
+});
+
+test('a board opened in a second window keeps the history and follows new results', async ({ page }) => {
+  const { app, errors } = await openGame(page, { test: { oddeven: [9, 4] } });
+  await openTab(app, 'oddeven');
+  await app.locator('[data-act="oe-play"]').click();
+  await expect(app.locator('#sb-oddeven .sb-bead .bd')).toHaveText(['9']);
+  const board = await page.context().newPage();
+  const boardErrors = [];
+  board.on('pageerror', e => boardErrors.push(e.message));
+  await board.goto('/index.html#board-oddeven');
+  await expect(board.locator('#led')).toBeVisible();
+  await expect(board.locator('#ledBody .sb-bead .bd')).toHaveText(['9']);
+  await app.locator('[data-act="oe-play"]').click();
+  await expect(board.locator('#ledBody .sb-bead .bd')).toHaveText(['9', '4']);
+  await expect(board.locator('#bank')).toHaveText('997');
+  expect(errors).toEqual([]);
+  expect(boardErrors).toEqual([]);
 });
 
 test('motion respects reduced-motion preference', async ({ page }) => {

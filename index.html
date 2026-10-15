@@ -22,6 +22,7 @@
   --chip-10:#2456A6; --chip-50:#B0232D; --chip-100:#232323; --chip-500:#5D2C8A; --chip-ink:#FFFFFF; --chip-edge:#F4ECD8;
   --stone:#F3F0E8; --stone-edge:#B9B2A2; --lid:#8A5A32; --lid-2:#A8713F;
   --court:#F1E3BF; --curl-hi:rgba(255,255,255,.65); --curl-shadow:rgba(0,0,0,.38);
+  --led-bg:#07090A; --led-panel:#101517; --led-line:rgba(255,255,255,.09); --led-text:#F2EFE6; --led-soft:#A7B0AC; --led-red:#FF5A5F; --led-blue:#4DA3FF; --led-green:#3DDC84; --led-gold:#FFC94D;
   --focus-room:#18231F; --focus-felt:#F5C842; --shadow:rgba(8,20,16,.28);
   --display:"Bodoni Moda","Bodoni 72","Didot","Noto Serif KR","Noto Serif CJK KR",serif;
   --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;
@@ -161,11 +162,6 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .bac-side .seat-head{justify-content:center}
 .bac-side.won{border-color:var(--brass);background-color:rgba(0,0,0,.14)}
 .bac-side .hand-cards{min-height:calc(var(--cw)*1.45)}
-.road{display:flex;flex-direction:column;gap:8px}
-.road .seat-head span{margin-left:auto;font-size:12px;color:var(--on-felt-soft)}
-.beads{display:grid;grid-auto-flow:column;grid-template-rows:repeat(6,22px);grid-auto-columns:22px;gap:4px;padding:8px;border-radius:10px;background-color:var(--felt-2);min-height:calc(6*22px + 5*4px + 16px);justify-content:start;overflow-x:auto}
-.bead{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 11px/1 var(--sans);color:var(--bead-ink)}
-.bead.P{background-color:var(--player)} .bead.B{background-color:var(--banker)} .bead.T{background-color:var(--tie)}
 
 /* baccarat squeeze: the bettor's cards stay face down until peeled from the bottom or the side */
 .squeeze{display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -201,12 +197,6 @@ button:disabled{cursor:not-allowed;opacity:.42}
 @keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg) translateX(-4px)}40%{transform:rotate(6deg) translateX(4px)}60%{transform:rotate(-5deg)}80%{transform:rotate(4deg)}}
 .bowl.shaking .lid{animation:shake .45s ease-in-out infinite}
 .oe-count{text-align:center;font:600 22px/1.2 var(--display);min-height:1.2em}
-.hist{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:28px}
-.hist span{min-width:28px;height:28px;padding:0 8px;border-radius:14px;display:grid;place-items:center;font-size:12px;font-weight:700;background-color:var(--felt-2);color:var(--on-felt-soft)}
-.hist .h-odd{background-color:var(--brass);color:var(--brass-ink)}
-.hist .h-even{background-color:var(--on-felt);color:var(--felt-2)}
-.hist .h-hi{color:var(--win)}
-.hist-label{font-size:12px;color:var(--on-felt-soft);text-align:center}
 
 /* crash */
 .graph{position:relative;height:210px;border-radius:12px;background-color:var(--felt-2);overflow:hidden}
@@ -233,6 +223,83 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .pslot{height:26px;border-radius:5px;display:grid;place-items:center;font:700 clamp(9px,2.6vw,12px)/1 var(--sans);color:var(--bead-ink);letter-spacing:-.03em;transition:transform .2s}
 .pslot.h0{background-color:var(--heat-0)} .pslot.h1{background-color:var(--heat-1)} .pslot.h2{background-color:var(--heat-2)} .pslot.h3{background-color:var(--heat-3)}
 .pslot.flash{transform:translateY(5px)}
+
+/* scoreboards: the paper result card a casino hands out, drawn as an LED board */
+.sb{--cell:20px;background:var(--led-bg);color:var(--led-text);padding:14px 12px 16px;display:flex;flex-direction:column;gap:12px;border-top:3px solid var(--rail-2)}
+.sb-head{display:flex;align-items:center;gap:10px}
+.sb-head h2{font:italic 600 20px/1 var(--display)}
+.sb-led{margin-left:auto;border:1px solid var(--led-soft);color:var(--led-text);padding:0 14px;font-weight:600;font-size:14px}
+.sb-body{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sb-stats{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:13px}
+.sb-stats div{display:flex;gap:5px;align-items:baseline}
+.sb-stats dt{color:var(--led-soft)}
+.sb-stats dd{margin:0;font-weight:700}
+.sb-stats .B dd,.sb-stats .L dd{color:var(--led-red)} .sb-stats .P dd{color:var(--led-blue)}
+.sb-stats .T dd,.sb-stats .W dd,.sb-stats .hi dd{color:var(--led-green)} .sb-stats .O dd,.sb-stats .J dd,.sb-stats .gold dd{color:var(--led-gold)}
+.sb-grid{display:grid;gap:12px;min-width:0}
+.sb-block{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sb-block h3{margin:0;font:600 12px/1.2 var(--sans);letter-spacing:.05em;color:var(--led-soft)}
+.sb-derived{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
+.rd-scroll{overflow-x:auto;background-color:var(--led-panel);border-radius:6px;scrollbar-width:thin}
+.rd{--c:var(--cell);display:grid;grid-template-columns:repeat(var(--cols),var(--c));grid-template-rows:repeat(var(--rows),var(--c));width:calc(var(--cols) * var(--c));background-image:linear-gradient(var(--led-line) 1px,transparent 1px),linear-gradient(90deg,var(--led-line) 1px,transparent 1px);background-size:var(--c) var(--c)}
+.rd.half{--c:calc(var(--cell) / 2)}
+.rd>span{display:grid;place-items:center;position:relative;min-width:0}
+.bd{width:84%;height:84%;border-radius:50%;display:grid;place-items:center;position:relative;font:700 calc(var(--c) * .44)/1 var(--sans);font-style:normal;color:var(--led-bg);letter-spacing:-.04em}
+.bd.B,.bd.L{background-color:var(--led-red)} .bd.P{background-color:var(--led-blue)} .bd.T,.bd.W{background-color:var(--led-green)}
+.bd.O,.bd.J{background-color:var(--led-gold)} .bd.E{background-color:var(--led-text)} .bd.U,.bd.D{background-color:var(--led-soft)}
+.br{display:block;width:76%;height:76%;border-radius:50%;border:max(2px,calc(var(--c) * .13)) solid var(--led-soft);position:relative}
+.br.B,.br.L{border-color:var(--led-red)} .br.P{border-color:var(--led-blue)} .br.W{border-color:var(--led-green)}
+.br.O{border-color:var(--led-gold)} .br.E{border-color:var(--led-text)} .br.none{border-color:transparent}
+.tie{position:absolute;inset:-22%;display:grid;place-items:center;text-decoration:none;font:700 calc(var(--c) * .4)/1 var(--sans);color:var(--led-green)}
+.tie::before{content:"";position:absolute;left:calc(50% - 1px);top:0;bottom:0;width:2px;background:var(--led-green);transform:rotate(45deg)}
+.pd{position:absolute;width:30%;height:30%;border-radius:50%;border:1px solid var(--led-panel)}
+.bpd{top:-8%;left:-8%;background:var(--led-red)} .ppd{bottom:-8%;right:-8%;background:var(--led-blue)}
+.dv{display:block;width:70%;height:70%;border-radius:50%;position:relative;color:var(--led-soft)}
+.dv.R{color:var(--led-red)} .dv.B{color:var(--led-blue)}
+.dv.eye{border:max(1.5px,calc(var(--c) * .16)) solid currentColor}
+.dv.small{background-color:currentColor}
+.dv.roach{border-radius:0}
+.dv.roach::before{content:"";position:absolute;left:calc(50% - 1px);top:-10%;bottom:-10%;width:max(2px,calc(var(--c) * .14));background:currentColor;transform:rotate(45deg)}
+.dv.none{border:1px dashed var(--led-soft);background:none}
+.dv.none::before{display:none}
+.asks{display:flex;flex-wrap:wrap;gap:8px 22px}
+.ask{display:inline-flex;align-items:center;gap:8px;--c:24px}
+.ask .bd{width:var(--c);height:var(--c);flex:none}
+.ask .dv{width:calc(var(--c) * .62);height:calc(var(--c) * .62);flex:none}
+.chipsx{display:flex;flex-wrap:wrap;gap:6px}
+.chipsx span{padding:4px 8px;border-radius:6px;background-color:var(--led-panel);font:700 max(12px,calc(var(--cell) * .62))/1.25 var(--sans);color:var(--led-text)}
+.chipsx .lo{color:var(--led-red)} .chipsx .hi{color:var(--led-green)} .chipsx .gold{color:var(--led-gold)}
+.chipsx .cashed{box-shadow:inset 0 -3px 0 var(--led-blue)}
+.bars{display:flex;align-items:flex-end;gap:2px;height:calc(var(--cell) * 5);padding:6px;background-color:var(--led-panel);border-radius:6px}
+.bars i{flex:1 1 0;min-width:2px;max-width:calc(var(--cell) * .8);border-radius:2px 2px 0 0;background:var(--led-red)}
+.bars i.hi{background:var(--led-green)} .bars i.gold{background:var(--led-gold)}
+.histo{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;height:calc(var(--cell) * 6);padding:20px 6px 0;background-color:var(--led-panel);border-radius:6px 6px 0 0}
+.histo span{position:relative}
+.histo i{position:absolute;left:0;right:0;bottom:0;background:var(--led-blue);border-radius:2px 2px 0 0;min-height:1px}
+.histo b{position:absolute;left:-1px;right:-1px;height:2px;background:var(--led-gold)}
+.histo em{position:absolute;left:-4px;right:-4px;text-align:center;font:600 max(10px,calc(var(--cell) * .5))/1 var(--sans);font-style:normal;color:var(--led-soft);padding-bottom:3px}
+.histo-x{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;padding:5px 6px 6px;background-color:var(--led-panel);border-radius:0 0 6px 6px}
+.histo-x span{text-align:center;font:700 max(9px,calc(var(--cell) * .5))/1 var(--sans);color:var(--led-text);letter-spacing:-.04em}
+
+/* LED board mode: one game's board fills the screen for a monitor or TV */
+.led{position:fixed;inset:0;z-index:50;background:var(--led-bg);color:var(--led-text);display:flex;flex-direction:column;gap:14px;overflow:auto;padding-block:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body.led-on{overflow:hidden}
+.led-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.led-top h2{font:italic 600 clamp(24px,3.4vw,52px)/1 var(--display)}
+.led-ctl{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px}
+.led-ctl button,.led-ctl a{min-height:44px;min-width:44px;padding:0 14px;border:1px solid var(--led-soft);border-radius:10px;color:var(--led-text);background-color:var(--led-panel);display:inline-flex;align-items:center;justify-content:center;font:600 15px/1 var(--sans);text-decoration:none}
+.led-ctl [aria-pressed="true"]{background-color:var(--led-gold);border-color:var(--led-gold);color:var(--led-bg)}
+.led-body{display:flex;flex-direction:column;gap:16px;min-width:0}
+.led-body .sb-stats{font-size:clamp(15px,calc(var(--cell) * .42),30px);gap:6px 26px}
+.led-body .sb-block h3{font-size:clamp(12px,calc(var(--cell) * .28),20px)}
+.led-body .ask{--c:clamp(24px,calc(var(--cell) * .8),48px)}
+@media (min-width:900px){
+  .led-body .sb-bac{grid-template-columns:minmax(0,1fr) minmax(0,2fr);grid-template-areas:"bead big" "ask derived"}
+  .led-body .sb-bac .sb-bead{grid-area:bead} .led-body .sb-bac .sb-big{grid-area:big}
+  .led-body .sb-bac .sb-derived{grid-area:derived} .led-body .sb-bac .sb-ask{grid-area:ask}
+  .led-body .sb-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .led-body .sb-two .sb-dealer{grid-column:1 / -1}
+}
 
 /* info */
 .info{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:var(--room-2);border:1px solid var(--line)}
@@ -338,10 +405,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
           <button type="button" class="zone zb" data-act="bac-side" data-v="banker" aria-pressed="true">뱅커<small>0.95 : 1</small></button>
         </div>
         <p class="msg" id="bacMsg" role="status" aria-live="polite"></p>
-        <div class="road">
-          <div class="seat-head"><h2>비드 로드</h2><span id="bacCount"></span><span class="shoe" id="bacShoe" style="margin-left:12px"></span></div>
-          <div class="beads" id="bacRoad" aria-hidden="true"></div>
-        </div>
+        <div class="seat-head"><span class="shoe" id="bacShoe"></span></div>
       </div>
       <div class="rail">
         <div data-betbar="baccarat"></div>
@@ -360,8 +424,6 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
           <button type="button" class="zone ze" data-act="oe-pick" data-v="even" aria-pressed="false">짝<small>1.95배</small></button>
         </div>
         <p class="msg" id="oeMsg" role="status" aria-live="polite"></p>
-        <p class="hist-label">최근 결과</p>
-        <div class="hist" id="oeHist"></div>
       </div>
       <div class="rail">
         <div data-betbar="oddeven"></div>
@@ -374,8 +436,6 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
       <div class="table">
         <div class="graph"><canvas id="crCanvas" aria-hidden="true"></canvas><div class="mult" id="crMult" aria-hidden="true">1.00×<small>시작을 누르면 배수가 올라가요</small></div></div>
         <p class="msg" id="crMsg" role="status" aria-live="polite"></p>
-        <p class="hist-label">최근 터진 배수</p>
-        <div class="hist" id="crHist"></div>
       </div>
       <div class="rail">
         <div data-betbar="crash"></div>
@@ -405,8 +465,6 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
       <div class="table">
         <div class="board"><canvas id="plCanvas" aria-hidden="true"></canvas><div class="pslots" id="plSlots"></div></div>
         <p class="msg" id="plMsg" role="status" aria-live="polite"></p>
-        <p class="hist-label">최근 배수</p>
-        <div class="hist" id="plHist"></div>
       </div>
       <div class="rail">
         <div data-betbar="plinko"></div>
@@ -434,13 +492,29 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
         <li><b>그래프</b> 배수가 1.00부터 오르다 무작위 지점에서 터져요. 터지기 전에 캐시아웃하면 그 배수만큼 받아요. 100판에 한 번꼴로 1.00에서 바로 터져요.</li>
         <li><b>마인</b> 5×5 칸에 지뢰 1~24개. 보석 칸을 열 때마다 배수가 올라요. 지뢰를 열면 건 칩을 잃어요.</li>
         <li><b>플링코</b> 핀 12줄. 공이 떨어진 칸의 배수만큼 받아요.</li>
+        <li><b>기록판</b> 바카라는 비드 플레이트, 빅로드(타이는 사선), 중국점 세 가지(빅아이보이·스몰로드·바퀴로드)와 다음 판 예측을 보여 줘요. 슈를 새로 섞으면 바카라 기록판도 새로 시작해요. 전광판을 다른 창에 띄워 두면 이 브라우저에서 한 판이 끝날 때마다 따라 바뀌어요.</li>
         <li><b>공통</b> 받을 칩에서 1개 미만은 버려요. 판이 끝나기 전에 새로고침하면 그 판에 건 칩은 돌려받아요.</li>
       </ul>
     </details>
     <button type="button" class="reset" data-act="reset" id="resetBtn">칩과 기록 처음부터</button>
   </section>
 
-  <p class="note">가상 칩은 돈으로 사거나 팔 수 없고, 다른 서비스의 포인트·시드로 바꿀 수 없어요. 결과는 이 기기 안에서 무작위로 정해지고, 칩과 기록은 이 브라우저에만 저장돼요.</p>
+  <p class="note">게임마다 아래 기록판에 지난 결과가 쌓여요. 전광판으로 보기를 누르면 화면 전체에 크게 띄울 수 있어요. 가상 칩은 돈으로 사거나 팔 수 없고, 다른 서비스의 포인트·시드로 바꿀 수 없어요. 결과는 이 기기 안에서 무작위로 정해지고, 칩과 기록은 이 브라우저에만 저장돼요.</p>
+</div>
+
+<div class="led" id="led" role="dialog" aria-modal="true" aria-labelledby="ledTitle" hidden>
+  <div class="led-top">
+    <h2 id="ledTitle">기록판</h2>
+    <div class="led-ctl">
+      <button type="button" data-act="led-prev" aria-label="이전 게임">&#9664;&#xFE0E;</button>
+      <button type="button" data-act="led-next" aria-label="다음 게임">&#9654;&#xFE0E;</button>
+      <button type="button" data-act="led-auto" id="ledAuto" aria-pressed="false">자동 넘김</button>
+      <button type="button" data-act="led-full" id="ledFull">전체 화면</button>
+      <a id="ledWin" href="#board" target="_blank" rel="noopener" hidden>새 창에 띄우기</a>
+      <button type="button" data-act="led-close" id="ledClose">닫기</button>
+    </div>
+  </div>
+  <div class="led-body" id="ledBody"></div>
 </div>
 
 <script>
@@ -475,11 +549,22 @@ var G={};
 GAMES.forEach(function(g){G[g]={bet:50,rounds:0,wins:0,net:0}});
 G.blackjack.bj=0;
 var P={tab:'blackjack',bacSide:'banker',bacSqueeze:true,oePick:'odd',crAuto:'2.00',mines:3,plRisk:'mid'};
+// Result history for the scoreboards, oldest first.
+var HIST_MAX=150,histTick=0,BJ_RES=['win','bj','push','lose','bust'];
+function freshHist(){return {bac:{shoe:1,list:[]},bj:[],oe:[],cr:[],mn:[],pl:{n:[0,0,0,0,0,0,0,0,0,0,0,0,0],list:[]}}}
+var H=freshHist();
+function record(game,entry){
+  var list=game==='bac'?H.bac.list:game==='pl'?H.pl.list:H[game];
+  list.push(entry);if(list.length>HIST_MAX)list.splice(0,list.length-HIST_MAX);
+  histTick++;save();
+}
+function isCard(c){return typeof c==='string'&&c.length<=3&&!!SUITS[su(c)]&&RANKS.indexOf(rk(c))>=0}
 
 function save(){
-  try{localStorage.setItem(KEY,JSON.stringify({v:1,chips:W.bank+W.inPlay,best:W.best,refills:W.refills,games:G,prefs:P}))}catch(e){}
+  try{localStorage.setItem(KEY,JSON.stringify({v:1,chips:W.bank+W.inPlay,best:W.best,refills:W.refills,games:G,prefs:P,hist:H,bacShoe:BAC.shoe}))}catch(e){}
 }
-function load(){
+// sync=true re-reads another window's save: wallet, stats and history, but not this window's prefs.
+function load(sync){
   var d=null;
   try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){d=null}
   if(!d||typeof d!=='object')return;
@@ -491,6 +576,9 @@ function load(){
     Object.keys(G[g]).forEach(function(k){G[g][k]=k==='net'?int(s[k],-1e12,1e12,0):k==='bet'?int(s[k],0,MAX,50):int(s[k],0,1e12,G[g][k])});
     G[g].bet=Math.floor(G[g].bet/10)*10;
   });
+  loadHist(d.hist);
+  if(Array.isArray(d.bacShoe)&&d.bacShoe.length<=BAC_DECKS*52&&d.bacShoe.every(isCard))BAC.shoe=d.bacShoe.slice();
+  if(sync)return;
   var p=d.prefs&&typeof d.prefs==='object'?d.prefs:{};
   if(GAMES.indexOf(p.tab)>=0)P.tab=p.tab;
   if(['player','tie','banker'].indexOf(p.bacSide)>=0)P.bacSide=p.bacSide;
@@ -499,6 +587,23 @@ function load(){
   if(typeof p.crAuto==='string'&&p.crAuto.length<=10)P.crAuto=p.crAuto;
   P.mines=int(p.mines,1,24,3);
   if(PL_TABLE[p.plRisk])P.plRisk=p.plRisk;
+}
+function loadHist(h){
+  H=freshHist();
+  if(!h||typeof h!=='object')return;
+  var ok=function(r){return r&&typeof r==='object'},num=function(v,lo,hi){v=Number(v);return Number.isFinite(v)?Math.min(hi,Math.max(lo,v)):lo};
+  if(ok(h.bac)&&Array.isArray(h.bac.list)){
+    H.bac.shoe=int(h.bac.shoe,1,1e9,1);
+    H.bac.list=h.bac.list.filter(function(e){return ok(e)&&(e.w==='P'||e.w==='B'||e.w==='T')}).slice(-HIST_MAX).map(function(e){return {w:e.w,p:int(e.p,0,9,0),b:int(e.b,0,9,0),pp:!!e.pp,bp:!!e.bp}});
+  }
+  if(Array.isArray(h.bj))H.bj=h.bj.filter(function(r){return ok(r)&&Array.isArray(r.h)}).slice(-HIST_MAX).map(function(r){return {d:int(r.d,0,40,0),dbj:!!r.dbj,h:r.h.filter(function(x){return BJ_RES.indexOf(x)>=0}).slice(0,4),net:int(r.net,-1e9,1e9,0)}});
+  if(Array.isArray(h.oe))H.oe=h.oe.slice(-HIST_MAX).map(function(n){return int(n,1,20,1)});
+  if(Array.isArray(h.cr))H.cr=h.cr.filter(ok).slice(-HIST_MAX).map(function(r){return {x:floor2(num(r.x,1,CR_MAX)),c:floor2(num(r.c,0,CR_MAX))}});
+  if(Array.isArray(h.mn))H.mn=h.mn.filter(ok).slice(-HIST_MAX).map(function(r){return {m:int(r.m,1,24,3),k:int(r.k,0,24,0),x:floor2(num(r.x,0,1e6))}});
+  if(ok(h.pl)){
+    if(Array.isArray(h.pl.n)&&h.pl.n.length===13)H.pl.n=h.pl.n.map(function(v){return int(v,0,1e9,0)});
+    if(Array.isArray(h.pl.list))H.pl.list=h.pl.list.filter(ok).slice(-HIST_MAX).map(function(r){return {s:int(r.s,0,12,6),x:num(r.x,0,1000)}});
+  }
 }
 // Take a wager from the bank. It stays in inPlay (and is refunded on reload) until settle().
 function stake(amount){if(amount<MIN||amount>W.bank)return false;W.bank-=amount;W.inPlay+=amount;save();return true}
@@ -625,6 +730,7 @@ function bjSettle(note){
     h.result=res;h.paid=chipsOf(paid);h.done=true;net+=h.paid-h.bet;
     settle('blackjack',h.bet,h.paid,res==='bust'?'lose':res);
   });
+  record('bj',{d:d,dbj:dbj,h:BJ.hands.map(function(h){return h.result}),net:net});
   BJ.phase='bet';BJ.hole=false;
   var head=dbj?'딜러 블랙잭. ':dbust?'딜러 '+d+' 버스트. ':'',body;
   if(BJ.hands.length===1){
@@ -672,7 +778,7 @@ function renderBJ(){
 
 /* ---------- baccarat ---------- */
 var BAC_DECKS=8,BAC_CUT=52;
-var BAC={shoe:makeShoe(BAC_DECKS),player:[],banker:[],hidden:{},sq:null,sqSide:null,phase:'bet',last:'',road:[],msg:'걸 곳을 고르고 딜을 누르세요',tone:''};
+var BAC={shoe:makeShoe(BAC_DECKS),player:[],banker:[],hidden:{},sq:null,sqSide:null,phase:'bet',last:'',msg:'걸 곳을 고르고 딜을 누르세요',tone:''};
 function bacDraw(){var t=queue('baccarat');if(t.length)return String(t.shift());if(!BAC.shoe.length)BAC.shoe=makeShoe(BAC_DECKS);return BAC.shoe.pop()}
 function bacPt(c){var r=rk(c);return r==='A'?1:(r==='10'||r==='J'||r==='Q'||r==='K')?0:+r}
 function bacTot(cs){return cs.reduce(function(s,c){return s+bacPt(c)},0)%10}
@@ -691,7 +797,7 @@ async function bacDeal(){
   var bet=G.baccarat.bet,side=P.bacSide;
   if(!stake(bet)){BAC.msg=noFunds();BAC.tone='lose';return renderAll()}
   var note='';
-  if(BAC.shoe.length<BAC_CUT){BAC.shoe=makeShoe(BAC_DECKS);note='새 슈를 섞었어요. '}
+  if(BAC.shoe.length<BAC_CUT){BAC.shoe=makeShoe(BAC_DECKS);note='새 슈를 섞었어요. 기록판도 새로 시작해요. ';H.bac={shoe:H.bac.shoe+1,list:[]};histTick++}
   forget('bac:');
   BAC.phase='deal';BAC.player=[];BAC.banker=[];BAC.last='';BAC.sq=null;
   BAC.sqSide=P.bacSqueeze?(side==='banker'?'b':'p'):null;
@@ -710,7 +816,7 @@ async function bacDeal(){
   else if(win==='P'&&side==='player'){paid=bet*2;res='win'}
   else if(win==='B'&&side==='banker'){paid=bet+bet*0.95;res='win'}
   settle('baccarat',bet,paid,res);
-  BAC.road.push(win);if(BAC.road.length>54)BAC.road.splice(0,6);
+  record('bac',{w:win,p:p,b:b,pp:rk(BAC.player[0])===rk(BAC.player[1]),bp:rk(BAC.banker[0])===rk(BAC.banker[1])});
   BAC.last=win;
   var net=chipsOf(paid)-bet,names={P:'플레이어 승',B:'뱅커 승',T:'타이'};
   BAC.msg=note+(natural?'내추럴. ':'')+'플레이어 '+p+' : 뱅커 '+b+', '+names[win]+'. '+(res==='push'?'건 칩을 돌려받았어요':signed(net)+'칩');
@@ -793,15 +899,12 @@ function renderBac(){
   $('bacBSide').classList.toggle('won',BAC.last==='B');
   document.querySelectorAll('[data-act="bac-side"]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===P.bacSide));b.disabled=BAC.phase!=='bet'});
   setMsg('bacMsg',BAC.msg,BAC.tone);
-  $('bacRoad').innerHTML=BAC.road.map(function(r){return '<span class="bead '+r+'">'+r+'</span>'}).join('');
-  var cnt={P:0,B:0,T:0};BAC.road.forEach(function(r){cnt[r]++});
-  $('bacCount').textContent=BAC.road.length?'P '+cnt.P+' · B '+cnt.B+' · T '+cnt.T:'아직 기록이 없어요';
   $('bacShoe').innerHTML=shoeHTML(BAC.shoe.length,BAC_DECKS*52,BAC_CUT);
   $('bacDealBtn').disabled=!canStart('baccarat');
 }
 
 /* ---------- odd / even ---------- */
-var OE={phase:'bet',count:0,shown:false,hist:[],msg:'홀 또는 짝을 고르고 돌을 펼치세요',tone:''};
+var OE={phase:'bet',count:0,shown:false,msg:'홀 또는 짝을 고르고 돌을 펼치세요',tone:''};
 async function oePlay(){
   if(OE.phase!=='bet')return;
   var bet=G.oddeven.bet,pick=P.oePick;
@@ -811,7 +914,7 @@ async function oePlay(){
   var t=queue('oddeven'),n=t.length?int(t.shift(),1,20,1):1+randInt(20);
   var odd=n%2===1,won=(pick==='odd')===odd,paid=won?bet*1.95:0;
   settle('oddeven',bet,paid,won?'win':'lose');
-  OE.count=n;OE.shown=true;OE.hist.unshift(odd?'odd':'even');if(OE.hist.length>20)OE.hist.pop();
+  OE.count=n;OE.shown=true;record('oe',n);
   OE.msg=n+'개, '+(odd?'홀':'짝')+'. '+(won?'맞혔어요 ':'틀렸어요 ')+signed(chipsOf(paid)-bet)+'칩';OE.tone=won?'win':'lose';
   OE.phase='bet';renderAll();focusAction('oddeven');
 }
@@ -822,7 +925,7 @@ function stonesHTML(n){
 }
 var oeDrawn='';
 function renderOE(){
-  var bowl=$('oeBowl'),state=OE.shown?'open:'+OE.count+':'+OE.hist.length:OE.phase;
+  var bowl=$('oeBowl'),state=OE.shown?'open:'+OE.count+':'+histTick:OE.phase;
   if(state!==oeDrawn){
     oeDrawn=state;
     bowl.innerHTML=OE.shown?stonesHTML(OE.count):'<div class="lid" aria-hidden="true">?</div>';
@@ -832,13 +935,12 @@ function renderOE(){
   $('oeCount').textContent=OE.shown?OE.count+'개 · '+(OE.count%2?'홀':'짝'):'1~20개, 홀일까 짝일까';
   document.querySelectorAll('[data-act="oe-pick"]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===P.oePick));b.disabled=OE.phase!=='bet'});
   setMsg('oeMsg',OE.msg,OE.tone);
-  $('oeHist').innerHTML=OE.hist.length?OE.hist.map(function(x){return '<span class="h-'+x+'">'+(x==='odd'?'홀':'짝')+'</span>'}).join(''):'<span>없음</span>';
   $('oePlayBtn').disabled=!canStart('oddeven');
 }
 
 /* ---------- crash ---------- */
 var CR_K=0.00012,CR_MAX=1000;
-var CR={phase:'bet',t0:0,point:1,auto:0,cashed:0,bet:0,end:0,hist:[],timer:0,autoTimer:0,raf:0,msg:'금액과 자동 캐시아웃 배수를 정하고 시작하세요',tone:''};
+var CR={phase:'bet',t0:0,point:1,auto:0,cashed:0,bet:0,end:0,timer:0,autoTimer:0,raf:0,msg:'금액과 자동 캐시아웃 배수를 정하고 시작하세요',tone:''};
 function crAt(ms){return Math.exp(CR_K*ms)}
 function crTime(m){return Math.log(m)/CR_K}
 // P(point >= x) = 0.99 / x, so cashing out at any target returns 99% on average.
@@ -874,7 +976,7 @@ function crBust(){
   clearTimeout(CR.autoTimer);
   if(!CR.cashed){settle('crash',CR.bet,0,'lose');CR.msg=CR.point.toFixed(2)+'배에서 터졌어요 '+signed(-CR.bet)+'칩';CR.tone='lose'}
   else CR.msg=CR.cashed.toFixed(2)+'배에서 캐시아웃했어요. 그래프는 '+CR.point.toFixed(2)+'배에서 터졌어요';
-  CR.hist.unshift(CR.point);if(CR.hist.length>14)CR.hist.pop();
+  record('cr',{x:CR.point,c:CR.cashed||0});
   CR.phase='bet';CR.end=crTime(CR.point);
   cancelAnimationFrame(CR.raf);renderAll();focusAction('crash');
 }
@@ -923,7 +1025,6 @@ function renderCrash(){
   $('crGo').disabled=!canStart('crash');
   $('crAuto').disabled=run;
   setMsg('crMsg',CR.msg,CR.tone);
-  $('crHist').innerHTML=CR.hist.length?CR.hist.map(function(x){return '<span class="'+(x>=2?'h-hi':'')+'">'+x.toFixed(2)+'×</span>'}).join(''):'<span>없음</span>';
   if(run){renderCrashLive();return}
   var mult=$('crMult');
   if(CR.end){mult.className='mult bust';mult.innerHTML=CR.point.toFixed(2)+'×<small>'+(CR.cashed?CR.cashed.toFixed(2)+'배에서 캐시아웃했어요':'여기서 터졌어요')+'</small>';drawCrash(CR.end,'bust')}
@@ -947,7 +1048,7 @@ function mnStart(){
 function mnOpen(i){
   if(MN.phase!=='play'||MN.open.indexOf(i)>=0)return;
   if(MN.layout.indexOf(i)>=0){
-    MN.boom=i;settle('mines',MN.bet,0,'lose');
+    MN.boom=i;settle('mines',MN.bet,0,'lose');record('mn',{m:MN.layout.length,k:MN.open.length,x:0});
     MN.msg='지뢰를 밟았어요 '+signed(-MN.bet)+'칩';MN.tone='lose';MN.phase='bet';
     renderAll();focusAction('mines');return;
   }
@@ -959,7 +1060,7 @@ function mnOpen(i){
 function mnCash(all){
   if(MN.phase!=='play'||!MN.open.length)return;
   var x=mnMult(MN.open.length,MN.layout.length),paid=chipsOf(MN.bet*x);
-  settle('mines',MN.bet,paid,paid>MN.bet?'win':paid===MN.bet?'push':'lose');
+  settle('mines',MN.bet,paid,paid>MN.bet?'win':paid===MN.bet?'push':'lose');record('mn',{m:MN.layout.length,k:MN.open.length,x:x});
   MN.msg=(all===true?'보석을 모두 찾았어요. ':'')+'×'+x.toFixed(2)+' 캐시아웃 '+signed(paid-MN.bet)+'칩';MN.tone=paid>MN.bet?'win':'push';
   MN.phase='bet';renderAll();focusAction('mines');
 }
@@ -992,7 +1093,7 @@ var PL_TABLE={
   mid:[33,11,4,2,1.1,0.6,0.3,0.6,1.1,2,4,11,33],
   high:[170,24,8.1,2,0.7,0.2,0.2,0.2,0.7,2,8.1,24,170]
 };
-var PL={balls:[],hist:[],flash:-1,raf:0,msg:'위험도를 고르고 공을 떨어뜨리세요',tone:''};
+var PL={balls:[],flash:-1,raf:0,msg:'위험도를 고르고 공을 떨어뜨리세요',tone:''};
 // Expected return: Σ multiplier × C(12,k) / 2^12
 function plRTP(risk){var t=PL_TABLE[risk],s=0,c=1;for(var k=0;k<=PL_ROWS;k++){s+=t[k]*c;c=c*(PL_ROWS-k)/(k+1)}return s/Math.pow(2,PL_ROWS)}
 function plDrop(){
@@ -1012,7 +1113,7 @@ function plLand(ball){
   var i=PL.balls.indexOf(ball);if(i>=0)PL.balls.splice(i,1);
   var paid=chipsOf(ball.bet*ball.mult);
   settle('plinko',ball.bet,paid,paid>ball.bet?'win':paid===ball.bet?'push':'lose');
-  PL.hist.unshift(ball.mult);if(PL.hist.length>14)PL.hist.pop();
+  H.pl.n[ball.slot]++;record('pl',{s:ball.slot,x:ball.mult});
   PL.flash=ball.slot;PL.msg='×'+ball.mult+' 칸 '+signed(paid-ball.bet)+'칩';PL.tone=paid>ball.bet?'win':paid<ball.bet?'lose':'push';
   renderAll();
   setTimeout(function(){if(PL.flash===ball.slot){PL.flash=-1;renderPlinkoSlots()}},500);
@@ -1049,9 +1150,189 @@ function renderPlinko(){
   $('plRtp').textContent='환수율 '+(plRTP(P.plRisk)*100).toFixed(1)+'%';
   $('plRisk').value=P.plRisk;$('plRisk').disabled=PL.balls.length>0;
   setMsg('plMsg',PL.msg,PL.tone);
-  $('plHist').innerHTML=PL.hist.length?PL.hist.map(function(x){return '<span class="'+(x>=2?'h-hi':'')+'">×'+x+'</span>'}).join(''):'<span>없음</span>';
   $('plDrop').disabled=G.plinko.bet<MIN||G.plinko.bet>W.bank||PL.balls.length>=PL_MAX_BALLS;
   drawPlinko();
+}
+
+/* ---------- scoreboards ---------- */
+// Big-road placement: one result key runs down a column; a run blocked at the bottom
+// (or by an earlier run) turns right along its row, the "dragon tail".
+function placeRoad(entries,rows){
+  var occ={},cells=[],start=-1,col=0,row=0,last=null,tail=false;
+  entries.forEach(function(e){
+    if(e.k!==last){start++;while(occ[start+',0'])start++;col=start;row=0;tail=false;last=e.k}
+    else if(!tail&&row+1<rows&&!occ[col+','+(row+1)])row++;
+    else{tail=true;col++}
+    occ[col+','+row]=1;cells.push({col:col,row:row,e:e});
+  });
+  return cells;
+}
+function runsOf(keys){var runs=[],last=null;keys.forEach(function(k){if(k===last)runs[runs.length-1]++;else{runs.push(1);last=k}});return runs}
+// Derived roads (중국점) compare the big road with itself k columns back:
+// a new column is red when the two columns before it have equal length; a cell further
+// down is red when column c−k reaches this row or stopped two rows short, blue when it stopped one row short.
+function deriveOne(runs,c,r,k){
+  if(r===0)return runs[c-1]===runs[c-1-k]?'R':'B';
+  var L=runs[c-k];return L>=r+1||L<r?'R':'B';
+}
+function derivedColors(runs,k){
+  var out=[];
+  for(var c=k;c<runs.length;c++)for(var r=0;r<runs[c];r++){if(c===k&&r===0)continue;out.push(deriveOne(runs,c,r,k))}
+  return out;
+}
+function predict(keys,K,k){
+  var runs=runsOf(keys),c,r;
+  if(keys.length&&keys[keys.length-1]===K){c=runs.length-1;r=runs[c];runs[c]++}else{runs.push(1);c=runs.length-1;r=0}
+  if(c<k||(c===k&&r===0))return null;
+  return deriveOne(runs,c,r,k);
+}
+function roadHTML(cells,rows,cls){
+  var maxc=-1;cells.forEach(function(c){if(c.col>maxc)maxc=c.col});
+  return '<div class="rd-scroll"><div class="rd'+(cls?' '+cls:'')+'" style="--cols:'+Math.max(8,maxc+3)+';--rows:'+rows+'">'+
+    cells.map(function(c){return '<span style="grid-area:'+(c.row+1)+' / '+(c.col+1)+'">'+c.html+'</span>'}).join('')+'</div></div>';
+}
+function beadCells(list,fn){return list.map(function(e,i){return {col:Math.floor(i/6),row:i%6,html:fn(e)}})}
+function bd(cls,text,extra){return '<i class="bd '+cls+'">'+text+(extra||'')+'</i>'}
+function tieMark(n){return n?'<s class="tie">'+(n>1?n:'')+'</s>':''}
+function pairs(e){return (e.bp?'<b class="pd bpd"></b>':'')+(e.pp?'<b class="pd ppd"></b>':'')}
+// Big-road cells from a result list; tie-like results become a slash on the previous cell.
+function runRoad(list,keyOf,isTie,extra){
+  var ents=[],lead=0;
+  list.forEach(function(e){if(isTie(e)){if(ents.length)ents[ents.length-1].t++;else lead++}else{ents.push({k:keyOf(e),t:lead,e:e});lead=0}});
+  var cells=placeRoad(ents,6).map(function(c){return {col:c.col,row:c.row,html:'<i class="br '+c.e.k+'">'+tieMark(c.e.t)+(extra?extra(c.e.e):'')+'</i>'}});
+  if(!ents.length&&lead)cells=[{col:0,row:0,html:'<i class="br none">'+tieMark(lead)+'</i>'}];
+  return {cells:cells,keys:ents.map(function(x){return x.k})};
+}
+function block(cls,title,inner){return '<div class="sb-block '+cls+'"><h3>'+title+'</h3>'+inner+'</div>'}
+function statsHTML(list){return '<dl class="sb-stats">'+list.map(function(s){return '<div'+(s[2]?' class="'+s[2]+'"':'')+'><dt>'+s[0]+'</dt><dd>'+s[1]+'</dd></div>'}).join('')+'</dl>'}
+function pct(a,b){return b?Math.round(a/b*100)+'%':'–'}
+var DERIVED=[['eye','빅아이보이',1],['small','스몰로드',2],['roach','바퀴로드',3]];
+function sbBaccarat(){
+  var L=H.bac.list,c={P:0,B:0,T:0},pp=0,bp=0;
+  L.forEach(function(e){c[e.w]++;if(e.pp)pp++;if(e.bp)bp++});
+  var bead=beadCells(L,function(e){return bd(e.w,e.w,pairs(e))});
+  var big=runRoad(L,function(e){return e.w},function(e){return e.w==='T'},pairs),runs=runsOf(big.keys);
+  var dv=DERIVED.map(function(d){
+    var cells=placeRoad(derivedColors(runs,d[2]).map(function(x){return {k:x}}),6).map(function(q){return {col:q.col,row:q.row,html:'<i class="dv '+d[0]+' '+q.e.k+'"></i>'}});
+    return block('sb-'+d[0],d[1],roadHTML(cells,6,'half'));
+  }).join('');
+  var ask='<div class="asks">'+['B','P'].map(function(K){
+    return '<span class="ask" aria-label="'+(K==='B'?'뱅커':'플레이어')+'가 나오면">'+bd(K,K)+DERIVED.map(function(d){var x=predict(big.keys,K,d[2]);return '<i class="dv '+d[0]+' '+(x||'none')+'"></i>'}).join('')+'</span>';
+  }).join('')+'</div>';
+  return statsHTML([['슈',H.bac.shoe],['판',L.length],['B',c.B,'B'],['P',c.P,'P'],['T',c.T,'T'],['B페어',bp,'B'],['P페어',pp,'P']])+
+    '<div class="sb-grid sb-bac">'+block('sb-bead','비드 플레이트',roadHTML(bead,6))+block('sb-big','빅로드',roadHTML(big.cells,6))+
+    '<div class="sb-derived">'+dv+'</div>'+block('sb-ask','다음 판이 이렇게 나오면',ask)+'</div>';
+}
+function sbBlackjack(){
+  var L=H.bj,flat=[],w=0,p=0,l=0,bj=0,db=0;
+  L.forEach(function(r){if(r.d>21)db++;r.h.forEach(function(x){flat.push(x);if(x==='win')w++;else if(x==='bj'){w++;bj++}else if(x==='push')p++;else l++})});
+  var code={win:['W','승'],bj:['J','BJ'],push:['U','무'],lose:['L','패'],bust:['L','버']};
+  var bead=beadCells(flat,function(x){return bd(code[x][0],code[x][1])});
+  var road=runRoad(flat,function(x){return x==='win'||x==='bj'?'W':'L'},function(x){return x==='push'},null);
+  var dealer=beadCells(L,function(r){return r.dbj?bd('J','BJ'):bd(r.d>21?'L':'D',String(r.d))});
+  return statsHTML([['라운드',L.length],['승',w,'W'],['무',p],['패',l,'L'],['블랙잭',bj,'J'],['딜러 버스트',pct(db,L.length),'L']])+
+    '<div class="sb-grid sb-two">'+block('sb-bead','내 패 결과',roadHTML(bead,6))+block('sb-big','승패 로드',roadHTML(road.cells,6))+block('sb-dealer','딜러 최종 점수',roadHTML(dealer,6))+'</div>';
+}
+function sbOddEven(){
+  var L=H.oe,keys=L.map(function(n){return n%2?'O':'E'}),odd=keys.filter(function(k){return k==='O'}).length,nm={O:'홀',E:'짝'};
+  var best=0,bestK='',run=0,cur=0;
+  keys.forEach(function(k,i){run=i&&keys[i-1]===k?run+1:1;if(run>best){best=run;bestK=k}});
+  for(var i=keys.length-1;i>=0&&keys[i]===keys[keys.length-1];i--)cur++;
+  var bead=beadCells(L,function(n){return bd(n%2?'O':'E',String(n))});
+  var road=runRoad(keys,function(k){return k},function(){return false},null);
+  return statsHTML([['판',L.length],['홀',odd,'O'],['짝',L.length-odd,'E'],['최장 연속',best?nm[bestK]+' '+best:'–'],['지금',cur?nm[keys[keys.length-1]]+' '+cur+'연속':'–']])+
+    '<div class="sb-grid sb-two">'+block('sb-bead','돌 개수',roadHTML(bead,6))+block('sb-big','홀짝 로드',roadHTML(road.cells,6))+'</div>';
+}
+function crBand(x){return x>=10?'gold':x>=2?'hi':'lo'}
+function sbCrash(){
+  var L=H.cr,xs=L.map(function(r){return r.x}),s=xs.slice().sort(function(a,b){return a-b}),n=s.length;
+  var med=n?(n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2):0,max=n?s[n-1]:0,two=xs.filter(function(x){return x>=2}).length,mine=L.filter(function(r){return r.c}).length;
+  var lm=Math.log(Math.max(10,max));
+  var bars='<div class="bars" aria-hidden="true">'+L.slice(-40).map(function(r){return '<i class="'+crBand(r.x)+'" style="height:'+Math.max(4,Math.min(100,Math.log(r.x)/lm*100)).toFixed(1)+'%"></i>'}).join('')+'</div>';
+  var chips='<div class="chipsx">'+L.slice(-30).reverse().map(function(r){return '<span class="'+crBand(r.x)+(r.c?' cashed':'')+'">'+r.x.toFixed(2)+'×</span>'}).join('')+'</div>';
+  return statsHTML([['판',n],['중앙값',n?floor2(med).toFixed(2)+'×':'–'],['최고',n?max.toFixed(2)+'×':'–','gold'],['2배 이상',pct(two,n),'hi'],['내 캐시아웃',mine]])+
+    '<div class="sb-grid sb-two">'+block('sb-bars','최근 40판',bars)+block('sb-chips','최근 배수 (파란 밑줄은 캐시아웃한 판)',chips)+'</div>';
+}
+function sbMines(){
+  var L=H.mn,ok=L.filter(function(r){return r.x}),avg=L.length?L.reduce(function(a,r){return a+r.k},0)/L.length:0,best=ok.reduce(function(a,r){return Math.max(a,r.x)},0);
+  var bead=beadCells(L,function(r){return r.x?bd('W',String(r.k)):bd('L','✹')});
+  var chips='<div class="chipsx">'+L.slice(-30).reverse().map(function(r){return '<span class="'+(r.x?(r.x>=2?'gold':'hi'):'lo')+'">'+r.m+'지뢰 · '+r.k+'칸 '+(r.x?'×'+r.x.toFixed(2):'✹')+'</span>'}).join('')+'</div>';
+  return statsHTML([['판',L.length],['캐시아웃',pct(ok.length,L.length),'W'],['평균 연 칸',L.length?avg.toFixed(1):'–'],['최고 배수',best?'×'+best.toFixed(2):'–','gold']])+
+    '<div class="sb-grid sb-two">'+block('sb-bead','판별 결과 (숫자는 연 칸 수)',roadHTML(bead,6))+block('sb-chips','최근 판',chips)+'</div>';
+}
+function sbPlinko(){
+  var n=H.pl.n,total=n.reduce(function(a,b){return a+b},0),t=PL_TABLE[P.plRisk],L=H.pl.list,exp=[],c=1;
+  for(var k=0;k<=PL_ROWS;k++){exp.push(c/Math.pow(2,PL_ROWS));c=c*(PL_ROWS-k)/(k+1)}
+  var top=Math.max(Math.max.apply(null,n),total*exp[6],1);
+  var histo='<div class="histo">'+n.map(function(v,k){var h=v/top*100;return '<span><i style="height:'+h.toFixed(1)+'%"></i><b style="bottom:'+(total*exp[k]/top*100).toFixed(1)+'%"></b><em style="bottom:'+h.toFixed(1)+'%">'+v+'</em></span>'}).join('')+'</div>'+
+    '<div class="histo-x">'+t.map(function(m){return '<span>'+m+'</span>'}).join('')+'</div>';
+  var avg=L.length?L.reduce(function(a,r){return a+r.x},0)/L.length:0,best=L.reduce(function(a,r){return Math.max(a,r.x)},0);
+  return statsHTML([['공',total],['평균 배수',L.length?'×'+avg.toFixed(2):'–'],['최고',best?'×'+best:'–','gold']])+
+    '<div class="sb-grid">'+block('sb-histo','칸별 횟수 (금색 선은 이론상 기대 횟수)',histo)+'</div>';
+}
+var SB={blackjack:sbBlackjack,baccarat:sbBaccarat,oddeven:sbOddEven,crash:sbCrash,mines:sbMines,plinko:sbPlinko};
+// Fill the visible width with empty grid columns and keep the newest results in view.
+function fitRoads(root){
+  root.querySelectorAll('.rd').forEach(function(rd){
+    var sc=rd.parentNode,cols=+rd.style.getPropertyValue('--cols')||8,w=rd.getBoundingClientRect().width;if(!w)return;
+    var cell=w/cols,vis=Math.floor(sc.clientWidth/cell);if(vis>cols)rd.style.setProperty('--cols',String(vis));
+    sc.scrollLeft=Math.max(0,cols-vis)*cell;
+  });
+}
+var sbSig={};
+function renderBoards(){
+  GAMES.forEach(function(g){
+    var el=$('sb-'+g);if(!el||!visible(el))return;
+    var sig=histTick+':'+el.clientWidth+':'+(g==='plinko'?P.plRisk:'');
+    if(sbSig[g]===sig)return;sbSig[g]=sig;el.innerHTML=SB[g]();fitRoads(el);
+  });
+  renderLed();
+}
+
+/* ---------- LED board mode ---------- */
+var LED={open:false,g:'blackjack',timer:0,lock:null,ret:null,sig:''};
+function setHash(h){try{history.replaceState(null,'','#'+h)}catch(e){}}
+function openLed(g,fromHash){
+  LED.g=GAMES.indexOf(g)>=0?g:P.tab;LED.open=true;LED.sig='';
+  if(!fromHash)LED.ret=document.activeElement;
+  $('led').hidden=false;document.querySelector('.app').inert=true;document.body.classList.add('led-on');
+  $('ledFull').hidden=!document.fullscreenEnabled;
+  $('ledWin').hidden=window.top!==window;
+  renderLed();setHash('board-'+LED.g);wakeLock(true);
+  $('ledClose').focus({preventScroll:true});
+}
+function closeLed(){
+  if(!LED.open)return;
+  LED.open=false;ledAuto(false);
+  if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(function(){});
+  $('led').hidden=true;document.querySelector('.app').inert=false;document.body.classList.remove('led-on');
+  wakeLock(false);setHash(P.tab);
+  if(LED.ret&&document.contains(LED.ret))LED.ret.focus({preventScroll:true});
+}
+function ledStep(d){var i=GAMES.indexOf(LED.g);LED.g=GAMES[(i+d+GAMES.length)%GAMES.length];LED.sig='';renderLed();setHash('board-'+LED.g)}
+function ledAuto(on){clearInterval(LED.timer);LED.timer=on?setInterval(function(){ledStep(1)},12000):0;$('ledAuto').setAttribute('aria-pressed',String(!!on))}
+function ledFull(){
+  var el=$('led'),pr=null;
+  try{pr=document.fullscreenElement?document.exitFullscreen():el.requestFullscreen()}catch(e){pr=Promise.reject(e)}
+  if(pr&&pr.catch)pr.catch(function(){var b=$('ledFull');b.disabled=true;b.textContent='전체 화면을 쓸 수 없어요'});
+}
+// Keep a TV or monitor awake while the board is up; browsers may refuse, which is fine.
+function wakeLock(on){
+  if(!on){if(LED.lock){LED.lock.release().catch(function(){});LED.lock=null}return}
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){LED.lock=l;l.addEventListener('release',function(){if(LED.lock===l)LED.lock=null})}).catch(function(){})}catch(e){}
+}
+function renderLed(){
+  if(!LED.open)return;
+  var g=LED.g,body=$('ledBody'),sig=histTick+':'+g+':'+window.innerWidth+'x'+window.innerHeight+':'+P.plRisk;
+  $('ledTitle').textContent=NAMES[g]+' 기록판';
+  $('ledWin').href='#board-'+g;
+  if(sig===LED.sig)return;LED.sig=sig;
+  var top=document.querySelector('.led-top').getBoundingClientRect().height;
+  var cell=Math.floor((window.innerHeight-top-150)/9.5);
+  if(window.innerWidth<900)cell=Math.min(cell,26);
+  body.style.setProperty('--cell',Math.max(18,Math.min(72,cell))+'px');
+  body.className='led-body is-'+g;
+  body.innerHTML=SB[g]();fitRoads(body);
 }
 
 /* ---------- shared UI ---------- */
@@ -1090,7 +1371,7 @@ function renderStats(){
   }).join('');
   $('statBest').textContent=fmt(W.best);$('statRefills').textContent=fmt(W.refills);
 }
-function renderAll(){renderWallet();renderBets();renderBJ();renderBac();renderOE();renderCrash();renderMines();renderPlinko();renderStats()}
+function renderAll(){renderWallet();renderBets();renderBJ();renderBac();renderOE();renderCrash();renderMines();renderPlinko();renderStats();renderBoards()}
 function visible(el){return !!el&&el.getClientRects().length>0&&!el.closest('[hidden]')}
 // Keep keyboard focus on the table when the focused control disappears between phases.
 function focusAction(g){
@@ -1106,9 +1387,10 @@ function selectTab(g,focus){
   GAMES.forEach(function(x){var t=$('tab-'+x),on=x===g;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1;$('panel-'+x).hidden=!on});
   if(focus)$('tab-'+g).focus();
   save();
-  try{history.replaceState(null,'','#'+g)}catch(e){}
+  if(!LED.open)setHash(g);
   if(g==='crash')renderCrash();
   if(g==='plinko')drawPlinko();
+  renderBoards();
 }
 var resetTimer=0;
 function resetAll(btn){
@@ -1122,11 +1404,12 @@ function resetAll(btn){
   W.bank=START;W.best=START;W.refills=0;
   GAMES.forEach(function(g){Object.keys(G[g]).forEach(function(k){G[g][k]=k==='bet'?50:0})});
   BJ.dealer=[];BJ.hands=[];BJ.shoe=makeShoe(BJ_DECKS);BJ.msg='처음부터 시작해요';BJ.tone='';
-  BAC.player=[];BAC.banker=[];BAC.road=[];BAC.last='';BAC.shoe=makeShoe(BAC_DECKS);BAC.msg='';BAC.tone='';
-  OE.hist=[];OE.shown=false;OE.msg='';OE.tone='';
-  CR.hist=[];CR.end=0;CR.msg='';CR.tone='';
+  BAC.player=[];BAC.banker=[];BAC.last='';BAC.shoe=makeShoe(BAC_DECKS);BAC.msg='';BAC.tone='';
+  OE.shown=false;OE.msg='';OE.tone='';
+  CR.end=0;CR.msg='';CR.tone='';
   MN.layout=[];MN.open=[];MN.boom=-1;MN.msg='';MN.tone='';
-  PL.hist=[];PL.msg='';PL.tone='';
+  PL.msg='';PL.tone='';
+  H=freshHist();histTick++;
   save();renderAll();
 }
 
@@ -1157,9 +1440,16 @@ document.addEventListener('click',function(e){
     case 'mn-cash':mnCash(false);break;
     case 'mn-open':mnOpen(+b.dataset.i);break;
     case 'pl-drop':plDrop();break;
+    case 'led-open':openLed(b.dataset.g);break;
+    case 'led-close':closeLed();break;
+    case 'led-prev':ledAuto(false);ledStep(-1);break;
+    case 'led-next':ledAuto(false);ledStep(1);break;
+    case 'led-auto':ledAuto(!LED.timer);break;
+    case 'led-full':ledFull();break;
   }
 });
 document.addEventListener('keydown',function(e){
+  if(LED.open){if(e.key==='Escape'){e.preventDefault();closeLed()}return}
   if(e.altKey||e.ctrlKey||e.metaKey||e.isComposing)return;
   var tag=e.target&&e.target.tagName;
   if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
@@ -1204,6 +1494,13 @@ document.querySelector('.tabs').addEventListener('keydown',function(e){
     else if(e.key==='Enter'||e.key===' '){e.preventDefault();sqOpen()}
   });
 })();
+// Another window of this page (for example a board on a second screen) saved: follow it while idle here.
+window.addEventListener('storage',function(e){
+  if(e.key!==KEY||W.inPlay>0||GAMES.some(busy))return;
+  load(true);histTick++;renderAll();
+});
+window.addEventListener('resize',function(){if(LED.open)renderLed()});
+document.addEventListener('visibilitychange',function(){if(LED.open&&document.visibilityState==='visible'&&!LED.lock)wakeLock(true)});
 $('crAuto').addEventListener('input',function(e){P.crAuto=e.target.value;save()});
 $('crAuto').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();crStart()}});
 $('mnCount').addEventListener('change',function(e){P.mines=int(e.target.value,1,24,3);save();renderMines()});
@@ -1216,10 +1513,14 @@ $('mnGrid').innerHTML=Array.from({length:25},function(_,i){return '<button type=
 $('mnCount').innerHTML=Array.from({length:24},function(_,i){return '<option value="'+(i+1)+'">'+(i+1)+'개</option>'}).join('');
 $('mnCount').value=String(P.mines);
 $('crAuto').value=P.crAuto;
-var hash=(location.hash||'').slice(1);
+GAMES.forEach(function(g){
+  $('panel-'+g).insertAdjacentHTML('beforeend','<section class="sb" aria-labelledby="sbt-'+g+'"><div class="sb-head"><h2 id="sbt-'+g+'">기록판</h2><button type="button" class="sb-led" data-act="led-open" data-g="'+g+'">전광판으로 보기</button></div><div class="sb-body" id="sb-'+g+'"></div></section>');
+});
+var hash=(location.hash||'').slice(1),boardHash=/^board(?:-([a-z]+))?$/.exec(hash);
 selectTab(GAMES.indexOf(hash)>=0?hash:P.tab,false);
 renderAll();
-if(window.ResizeObserver){new ResizeObserver(function(){if(CR.phase!=='run')renderCrash();drawPlinko()}).observe(document.querySelector('.app'))}
+if(boardHash)openLed(boardHash[1]||P.tab,true);
+if(window.ResizeObserver){new ResizeObserver(function(){if(CR.phase!=='run')renderCrash();drawPlinko();renderBoards()}).observe(document.querySelector('.app'))}
 if(reduce.addEventListener)reduce.addEventListener('change',renderAll);
 })();
 </script>
