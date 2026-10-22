@@ -1,0 +1,13 @@
+{
+  "name": "gamble",
+  "version": "1.0.0",
+  "private": true,
+  "description": "가상 칩 카지노 게임룸과 브라우저 회귀 시험",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}
