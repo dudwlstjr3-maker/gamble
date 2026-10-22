@@ -422,6 +422,38 @@ test('a board opened in a second window keeps the history and follows new result
   expect(boardErrors).toEqual([]);
 });
 
+test('only one window plays at a time and the shared wallet adds up', async ({ page }) => {
+  const { app, errors } = await openGame(page, { test: { mines: [[0, 1, 2]] } });
+  const other = await page.context().newPage();
+  const otherErrors = [];
+  other.on('pageerror', e => otherErrors.push(e.message));
+  await other.addInitScript(() => { window.__GAMBLE_TEST = { mines: [[0, 1, 2]] }; });
+  await other.goto('/index.html#mines');
+  await openTab(app, 'mines');
+  await setBet(app, 'mines', 100);
+  await app.locator('[data-act="mn-start"]').click();
+  // The wager on the first window's table is neither spendable nor playable in the second.
+  await expect(other.locator('#otherWin')).toBeVisible();
+  await expect(other.locator('#mnGo')).toBeDisabled();
+  await bankIs(other, 900);
+  await app.locator('.tile[data-i="0"]').click();
+  await bankIs(app, 900);
+  await expect(other.locator('#otherWin')).toBeHidden();
+  await setBet(other, 'mines', 100);
+  await other.locator('[data-act="mn-start"]').click();
+  await expect(app.locator('#otherWin')).toBeVisible();
+  await expect(app.locator('#mnGo')).toBeDisabled();
+  await other.locator('.tile[data-i="0"]').click();
+  await bankIs(other, 800);
+  await bankIs(app, 800);
+  const state = await stored(app);
+  expect(state.chips).toBe(800);
+  expect(state.games.mines.rounds).toBe(2);
+  expect(state.hist.mn).toHaveLength(2);
+  expect(errors).toEqual([]);
+  expect(otherErrors).toEqual([]);
+});
+
 test('motion respects reduced-motion preference', async ({ page }) => {
   const { app } = await openGame(page, { motion: 'no-preference', test: { blackjack: ['10S', '9H', '6D', '8C'] } });
   await app.locator('[data-act="bj-deal"]').click();

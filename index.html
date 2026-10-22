@@ -22,6 +22,7 @@
   --chip-10:#2456A6; --chip-50:#B0232D; --chip-100:#232323; --chip-500:#5D2C8A; --chip-ink:#FFFFFF; --chip-edge:#F4ECD8;
   --stone:#F3F0E8; --stone-edge:#B9B2A2; --lid:#8A5A32; --lid-2:#A8713F;
   --court:#F1E3BF; --curl-hi:rgba(255,255,255,.65); --curl-shadow:rgba(0,0,0,.38);
+  --shade-soft:rgba(0,0,0,.14); --shade-edge:rgba(0,0,0,.18); --shade-deep:rgba(0,0,0,.42); --shade-ring:rgba(0,0,0,.08); --glint:rgba(255,255,255,.9); --rail-line:rgba(244,236,216,.25);
   --led-bg:#07090A; --led-panel:#101517; --led-line:rgba(255,255,255,.09); --led-text:#F2EFE6; --led-soft:#A7B0AC; --led-red:#FF5A5F; --led-blue:#4DA3FF; --led-green:#3DDC84; --led-gold:#FFC94D;
   --focus-room:#18231F; --focus-felt:#F5C842; --shadow:rgba(8,20,16,.28);
   --display:"Bodoni Moda","Bodoni 72","Didot","Noto Serif KR","Noto Serif CJK KR",serif;
@@ -76,7 +77,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .tab[aria-selected="true"] small{color:var(--on-felt-soft)}
 
 .panel{border-radius:16px;overflow:hidden;background:var(--felt);color:var(--on-felt);box-shadow:0 14px 34px -16px var(--shadow)}
-.table{padding:16px 14px 18px;display:flex;flex-direction:column;gap:14px;background-color:var(--felt);background-image:radial-gradient(120% 70% at 50% 0%,transparent 55%,rgba(0,0,0,.18) 100%)}
+.table{padding:16px 14px 18px;display:flex;flex-direction:column;gap:14px;background-color:var(--felt);background-image:radial-gradient(120% 70% at 50% 0%,transparent 55%,var(--shade-edge) 100%)}
 .rail{background:var(--rail);color:var(--on-rail);padding:14px 12px;display:flex;flex-direction:column;gap:12px;border-top:3px solid var(--rail-2)}
 .seat{display:flex;flex-direction:column;gap:8px;align-items:center}
 .seat-head{display:flex;align-items:center;gap:8px;min-height:28px;width:100%}
@@ -117,7 +118,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .hands{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 14px;--cw:clamp(54px,16.5vw,78px);width:100%}
 .hands:not([data-n="1"]){--cw:clamp(40px,11.5vw,58px)}
 .hand{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid transparent;min-width:0}
-.hand.is-active{border-color:var(--brass);background-color:rgba(0,0,0,.14)}
+.hand.is-active{border-color:var(--brass);background-color:var(--shade-soft)}
 .hand-meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 
 /* rail controls */
@@ -126,7 +127,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .betamt span{font-size:13px;color:var(--on-rail-soft)}
 .betamt output{font:700 24px/1 var(--display)}
 .chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.chip{width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;background-color:var(--c);background-image:repeating-conic-gradient(var(--chip-edge) 0 10deg,transparent 10deg 45deg);color:var(--chip-ink);font:700 13px/1 var(--sans);position:relative;isolation:isolate;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.chip{width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;background-color:var(--c);background-image:repeating-conic-gradient(var(--chip-edge) 0 10deg,transparent 10deg 45deg);color:var(--chip-ink);font:700 13px/1 var(--sans);position:relative;isolation:isolate;box-shadow:0 2px 0 var(--shade-deep)}
 .chip::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--c);border:1.5px dashed var(--chip-edge);z-index:-1}
 .chip:not(:disabled):active{transform:translateY(1px)}
 .c10{--c:var(--chip-10)} .c50{--c:var(--chip-50)} .c100{--c:var(--chip-100)} .c500{--c:var(--chip-500)}
@@ -135,7 +136,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .go:not(:disabled):hover{background:var(--brass-hi)}
 .go.alt{background:var(--on-rail);color:var(--rail)}
 .acts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.act{background:var(--rail-2);border:1px solid rgba(244,236,216,.25);color:var(--on-rail);font-weight:600;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
+.act{background:var(--rail-2);border:1px solid var(--rail-line);color:var(--on-rail);font-weight:600;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
 .act kbd{font:500 11px/1 var(--sans);color:var(--on-rail-soft)}
 .act.primary{background:var(--brass);color:var(--brass-ink);border-color:transparent}
 .act.primary kbd{color:var(--brass-ink)}
@@ -160,7 +161,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .bac-hands{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;--cw:clamp(42px,12.5vw,62px)}
 .bac-side{display:flex;flex-direction:column;gap:8px;align-items:center;padding:8px 4px 10px;border-radius:12px;border:2px solid transparent;min-width:0}
 .bac-side .seat-head{justify-content:center}
-.bac-side.won{border-color:var(--brass);background-color:rgba(0,0,0,.14)}
+.bac-side.won{border-color:var(--brass);background-color:var(--shade-soft)}
 .bac-side .hand-cards{min-height:calc(var(--cw)*1.45)}
 
 /* baccarat squeeze: the bettor's cards stay face down until peeled from the bottom or the side */
@@ -189,11 +190,11 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .ghost[aria-pressed="true"]{background-color:var(--brass);color:var(--brass-ink);border-color:var(--brass)}
 
 /* odd-even */
-.bowl{position:relative;width:min(190px,58vw);aspect-ratio:1;max-width:100%;margin:4px auto 0;border-radius:50%;background-color:var(--felt-2);box-shadow:inset 0 6px 18px rgba(0,0,0,.45),0 0 0 6px var(--lid),0 0 0 8px var(--lid-2)}
-.stone{position:absolute;width:12%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background-color:var(--stone);background-image:radial-gradient(circle at 35% 30%,rgba(255,255,255,.9) 0 18%,transparent 45%);box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 -2px 3px var(--stone-edge)}
+.bowl{position:relative;width:min(190px,58vw);aspect-ratio:1;max-width:100%;margin:4px auto 0;border-radius:50%;background-color:var(--felt-2);box-shadow:inset 0 6px 18px var(--shade-deep),0 0 0 6px var(--lid),0 0 0 8px var(--lid-2)}
+.stone{position:absolute;width:12%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background-color:var(--stone);background-image:radial-gradient(circle at 35% 30%,var(--glint) 0 18%,transparent 45%);box-shadow:0 2px 3px var(--shade-deep),inset 0 -2px 3px var(--stone-edge)}
 @keyframes pop{from{transform:translate(-50%,-50%) scale(.2);opacity:0}}
 .bowl.open .stone{animation:pop .3s cubic-bezier(.2,.9,.3,1.3) both;animation-delay:calc(var(--i)*28ms)}
-.lid{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background-color:var(--lid);background-image:repeating-radial-gradient(circle at 50% 50%,transparent 0 9px,rgba(0,0,0,.08) 9px 11px);color:var(--on-felt);font:italic 600 54px/1 var(--display);box-shadow:inset 0 -8px 16px rgba(0,0,0,.35)}
+.lid{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background-color:var(--lid);background-image:repeating-radial-gradient(circle at 50% 50%,transparent 0 9px,var(--shade-ring) 9px 11px);color:var(--on-felt);font:italic 600 54px/1 var(--display);box-shadow:inset 0 -8px 16px var(--shade-deep)}
 @keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg) translateX(-4px)}40%{transform:rotate(6deg) translateX(4px)}60%{transform:rotate(-5deg)}80%{transform:rotate(4deg)}}
 .bowl.shaking .lid{animation:shake .45s ease-in-out infinite}
 .oe-count{text-align:center;font:600 22px/1.2 var(--display);min-height:1.2em}
@@ -333,6 +334,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
     <div class="wallet" aria-live="polite"><span>보유 칩</span><strong id="bank">1,000</strong></div>
   </header>
 
+  <p class="refill" id="otherWin" role="status" hidden>다른 창에서 판이 진행 중이에요. 그 판이 끝나면 여기서도 할 수 있어요.</p>
   <div class="refill" id="refill" hidden>
     <p>칩이 10개보다 적어요.</p>
     <button type="button" data-act="refill">칩 1,000개 다시 받기</button>
@@ -560,8 +562,16 @@ function record(game,entry){
 }
 function isCard(c){return typeof c==='string'&&c.length<=3&&!!SUITS[su(c)]&&RANKS.indexOf(rk(c))>=0}
 
+// Several windows share one saved wallet. Only the window with chips on the table writes;
+// the others wait and follow its saves until that round ends.
+var LOCK='gamble-active',WIN_ID=Math.random().toString(36).slice(2),LOCK_MS=120000;
+function lockHolder(){try{var l=JSON.parse(localStorage.getItem(LOCK)||'null');return l&&typeof l==='object'&&l.until>Date.now()?l.id:null}catch(e){return null}}
+function otherActive(){var h=lockHolder();return !!h&&h!==WIN_ID}
+function holdLock(){try{localStorage.setItem(LOCK,JSON.stringify({id:WIN_ID,until:Date.now()+LOCK_MS}))}catch(e){}}
+function dropLock(){if(lockHolder()===WIN_ID){try{localStorage.removeItem(LOCK)}catch(e){}}}
 function save(){
-  try{localStorage.setItem(KEY,JSON.stringify({v:1,chips:W.bank+W.inPlay,best:W.best,refills:W.refills,games:G,prefs:P,hist:H,bacShoe:BAC.shoe}))}catch(e){}
+  if(otherActive())return;
+  try{localStorage.setItem(KEY,JSON.stringify({v:1,chips:W.bank+W.inPlay,held:W.inPlay,best:W.best,refills:W.refills,games:G,prefs:P,hist:H,bacShoe:BAC.shoe}))}catch(e){}
 }
 // sync=true re-reads another window's save: wallet, stats and history, but not this window's prefs.
 function load(sync){
@@ -569,6 +579,8 @@ function load(sync){
   try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){d=null}
   if(!d||typeof d!=='object')return;
   W.bank=int(d.chips,0,1e12,START);
+  // chips includes wagers still on another window's table; they are not spendable here.
+  if(sync||otherActive())W.bank=Math.max(0,W.bank-int(d.held,0,1e12,0));
   W.best=int(d.best,0,1e12,Math.max(START,W.bank));
   W.refills=int(d.refills,0,1e9,0);
   if(d.games&&typeof d.games==='object')GAMES.forEach(function(g){
@@ -606,12 +618,13 @@ function loadHist(h){
   }
 }
 // Take a wager from the bank. It stays in inPlay (and is refunded on reload) until settle().
-function stake(amount){if(amount<MIN||amount>W.bank)return false;W.bank-=amount;W.inPlay+=amount;save();return true}
+function stake(amount){if(amount<MIN||amount>W.bank||otherActive())return false;W.bank-=amount;W.inPlay+=amount;holdLock();save();return true}
 function settle(game,wagered,paid,res){
   paid=chipsOf(paid);
   W.inPlay=Math.max(0,W.inPlay-wagered);W.bank+=paid;W.best=Math.max(W.best,W.bank);
   var s=G[game];s.rounds++;if(res==='win'||res==='bj')s.wins++;if(res==='bj')s.bj++;s.net+=paid-wagered;
   save();
+  if(W.inPlay===0)dropLock();
 }
 function maxBet(){return Math.min(MAX,Math.floor(W.bank/10)*10)}
 function busy(g){
@@ -622,8 +635,8 @@ function busy(g){
   if(g==='mines')return MN.phase!=='bet';
   return false;
 }
-function canStart(g){return !busy(g)&&G[g].bet>=MIN&&G[g].bet<=W.bank}
-function noFunds(g){return '보유 칩이 부족해요. 베팅 금액을 줄이세요'}
+function canStart(g){return !busy(g)&&G[g].bet>=MIN&&G[g].bet<=W.bank&&!otherActive()}
+function noFunds(){return otherActive()?'다른 창에서 판이 진행 중이에요':'보유 칩이 부족해요. 베팅 금액을 줄이세요'}
 
 /* ---------- cards ---------- */
 var SUITS={S:['♠','스페이드',0],H:['♥','하트',1],D:['♦','다이아',1],C:['♣','클럽',0]};
@@ -1150,7 +1163,7 @@ function renderPlinko(){
   $('plRtp').textContent='환수율 '+(plRTP(P.plRisk)*100).toFixed(1)+'%';
   $('plRisk').value=P.plRisk;$('plRisk').disabled=PL.balls.length>0;
   setMsg('plMsg',PL.msg,PL.tone);
-  $('plDrop').disabled=G.plinko.bet<MIN||G.plinko.bet>W.bank||PL.balls.length>=PL_MAX_BALLS;
+  $('plDrop').disabled=G.plinko.bet<MIN||G.plinko.bet>W.bank||PL.balls.length>=PL_MAX_BALLS||otherActive();
   drawPlinko();
 }
 
@@ -1361,7 +1374,8 @@ function renderWallet(){
     el.className=W.bank>lastBank?'up':'down';clearTimeout(bankTimer);bankTimer=setTimeout(function(){el.className=''},700);
   }
   lastBank=W.bank;
-  $('refill').hidden=!(W.bank+W.inPlay<MIN&&W.inPlay===0);
+  $('refill').hidden=!(W.bank+W.inPlay<MIN&&W.inPlay===0)||otherActive();
+  $('otherWin').hidden=!otherActive();
 }
 var RTP_TEXT={blackjack:'≈99.5%',baccarat:'98.9%',oddeven:'97.5%',crash:'99.0%',mines:'99.0%'};
 function renderStats(){
@@ -1400,7 +1414,7 @@ function resetAll(btn){
     return;
   }
   clearTimeout(resetTimer);btn.classList.remove('armed');btn.textContent='칩과 기록 처음부터';
-  if(W.inPlay>0||GAMES.some(busy)){BJ.msg='진행 중인 판이 끝난 뒤에 지울 수 있어요';BJ.tone='lose';return renderAll()}
+  if(W.inPlay>0||GAMES.some(busy)||otherActive()){BJ.msg='진행 중인 판이 끝난 뒤에 지울 수 있어요';BJ.tone='lose';return renderAll()}
   W.bank=START;W.best=START;W.refills=0;
   GAMES.forEach(function(g){Object.keys(G[g]).forEach(function(k){G[g][k]=k==='bet'?50:0})});
   BJ.dealer=[];BJ.hands=[];BJ.shoe=makeShoe(BJ_DECKS);BJ.msg='처음부터 시작해요';BJ.tone='';
@@ -1420,7 +1434,7 @@ document.addEventListener('click',function(e){
   switch(a){
     case 'chip':if(!busy(g)&&G[g].bet+(+v)<=maxBet()){G[g].bet+=+v;save();renderAll()}break;
     case 'bet-clear':if(!busy(g)){G[g].bet=0;save();renderAll()}break;
-    case 'refill':if(W.bank+W.inPlay<MIN&&W.inPlay===0){W.bank=START;W.refills++;GAMES.forEach(function(x){if(!G[x].bet)G[x].bet=50});save();renderAll()}break;
+    case 'refill':if(W.bank+W.inPlay<MIN&&W.inPlay===0&&!otherActive()){W.bank=START;W.refills++;GAMES.forEach(function(x){if(!G[x].bet)G[x].bet=50});save();renderAll()}break;
     case 'reset':resetAll(b);break;
     case 'bj-deal':bjDeal();break;
     case 'bj-hit':bjAct('hit');break;
@@ -1496,10 +1510,13 @@ document.querySelector('.tabs').addEventListener('keydown',function(e){
 })();
 // Another window of this page (for example a board on a second screen) saved: follow it while idle here.
 window.addEventListener('storage',function(e){
+  if(e.key===LOCK){renderAll();return}
   if(e.key!==KEY||W.inPlay>0||GAMES.some(busy))return;
   load(true);histTick++;renderAll();
 });
 window.addEventListener('resize',function(){if(LED.open)renderLed()});
+window.addEventListener('pagehide',dropLock);
+setInterval(function(){if(W.inPlay>0&&!otherActive())holdLock()},30000);
 document.addEventListener('visibilitychange',function(){if(LED.open&&document.visibilityState==='visible'&&!LED.lock)wakeLock(true)});
 $('crAuto').addEventListener('input',function(e){P.crAuto=e.target.value;save()});
 $('crAuto').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();crStart()}});
