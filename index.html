@@ -7,47 +7,66 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: a card room seen from one seat. Wallet and game tabs sit on the room floor; each game is its own felt table with a leather rail of controls along the near edge. */
+/* Design tokens: dark first; light uses the same surface and semantic roles. */
 :root{
-  --room:#E8EBE5; --room-2:#F5F7F2; --ink:#18231F; --ink-soft:#46564F; --line:#C5CEC7; --pos:#1E6B47; --neg:#A12A32;
-  --felt:#16463B; --felt-2:#0F372E; --felt-line:rgba(244,236,216,.26); --on-felt:#F4ECD8; --on-felt-soft:#BFD0C5;
-  --brass:#C9A04A; --brass-hi:#DDB65F; --brass-ink:#1A160D;
-  --rail:#2C2019; --rail-2:#3A2B21; --on-rail:#F4ECD8; --on-rail-soft:#D2C3B0;
-  --card:#FBF8F0; --card-edge:#D8D0BF; --suit-red:#B0232D; --suit-black:#1C1D1C; --back:#7B1E2C; --back-line:#E7CF9C;
-  --win:#93D9A6; --lose:#F5A99E; --push:#E7CF9C;
-  --player:#86B9F2; --banker:#F59B9B; --tie:#93D9A6; --bead-ink:#10161A;
-  --heat-0:#CFE0D5; --heat-1:#E9D9A8; --heat-2:#F2B880; --heat-3:#F28B7D;
-  --chip-10:#2456A6; --chip-50:#B0232D; --chip-100:#232323; --chip-500:#5D2C8A; --chip-ink:#FFFFFF; --chip-edge:#F4ECD8;
-  --stone:#F3F0E8; --stone-edge:#B9B2A2; --lid:#8A5A32; --lid-2:#A8713F;
-  --court:#F1E3BF; --curl-hi:rgba(255,255,255,.65); --curl-shadow:rgba(0,0,0,.38);
-  --shade-soft:rgba(0,0,0,.14); --shade-edge:rgba(0,0,0,.18); --shade-deep:rgba(0,0,0,.42); --shade-ring:rgba(0,0,0,.08); --glint:rgba(255,255,255,.9); --rail-line:rgba(244,236,216,.25);
-  --led-bg:#07090A; --led-panel:#101517; --led-line:rgba(255,255,255,.09); --led-text:#F2EFE6; --led-soft:#A7B0AC; --led-red:#FF5A5F; --led-blue:#4DA3FF; --led-green:#3DDC84; --led-gold:#FFC94D;
-  --focus-room:#18231F; --focus-felt:#F5C842; --shadow:rgba(8,20,16,.28);
-  --display:"Bodoni Moda","Bodoni 72","Didot","Noto Serif KR","Noto Serif CJK KR",serif;
-  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;
-  --focus:var(--focus-room);
-  color-scheme:light;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  /* Surfaces: page → panel → raised controls; borders never imply game state. */
+  --bg:#10131C; --surface:#191E2B; --surface-raised:#232A3A; --border:#343E52;
+  --text:#F3F5FB; --text-muted:#B0BCD0;
+  /* One brand accent. Blue/red remain reserved for baccarat; green/red/amber for outcomes. */
+  --accent:#B8A0FF; --accent-hover:#CAB8FF; --accent-soft:#30284C; --on-accent:#191228;
+  --success:#72E2AD; --danger:#FFA2AF; --neutral:#F3CE83; --blue:#9CCAFF; --red:#FFA2AF;
+  --card:#FAFBFF; --card-edge:#D4DAE5; --suit-red:#B52244; --suit-black:#182133;
+  --back:#66509B; --back-line:#7966A7; --court:#EEF0F7;
+  --heat-0:#C9C3DE; --heat-1:#C1B1EA; --heat-2:#B5A0EB; --heat-3:#AE94F1;
+  --shadow-color:rgba(0,0,0,.2); --grid-line:rgba(176,188,208,.13);
+  --curl-hi:rgba(255,255,255,.35); --curl-shadow:rgba(0,0,0,.18);
+  /* Spacing / corners / elevation / type / motion: shared across all six games. */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:20px; --radius-pill:999px;
+  --shadow-card:0 2px 4px var(--shadow-color); --shadow-bar:0 -8px 24px var(--shadow-color);
+  --text-xs:12px; --text-sm:14px; --text-base:15px; --text-lg:20px; --text-xl:28px; --text-balance:34px;
+  --motion:200ms; --content-width:1120px; --header-height:88px;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans CJK KR",sans-serif;
+  /* Compatibility aliases keep all existing JS canvas colors and generated classes intact. */
+  --display:var(--sans); --room:var(--bg); --room-2:var(--surface); --ink:var(--text); --ink-soft:var(--text-muted); --line:var(--border);
+  --pos:var(--success); --neg:var(--danger); --felt:var(--surface); --felt-2:var(--surface-raised); --felt-line:var(--border);
+  --on-felt:var(--text); --on-felt-soft:var(--text-muted); --rail:var(--surface); --rail-2:var(--surface-raised);
+  --on-rail:var(--text); --on-rail-soft:var(--text-muted); --rail-line:var(--border);
+  --brass:var(--accent); --brass-hi:var(--accent-hover); --brass-ink:var(--on-accent);
+  --win:var(--success); --lose:var(--danger); --push:var(--neutral); --player:var(--blue); --banker:var(--red); --tie:var(--success); --bead-ink:var(--on-accent);
+  --chip-10:var(--surface-raised); --chip-50:var(--surface-raised); --chip-100:var(--surface-raised); --chip-500:var(--surface-raised); --chip-ink:var(--text); --chip-edge:var(--border);
+  --stone:var(--text); --stone-edge:var(--border); --lid:var(--surface-raised); --lid-2:var(--border);
+  --shade-soft:var(--accent-soft); --shade-edge:var(--shadow-color); --shade-deep:var(--shadow-color); --shade-ring:var(--border); --glint:var(--surface-raised); --shadow:var(--shadow-color);
+  --led-bg:var(--surface); --led-panel:var(--bg); --led-line:var(--grid-line); --led-text:var(--text); --led-soft:var(--text-muted);
+  --led-red:var(--red); --led-blue:var(--blue); --led-green:var(--success); --led-gold:var(--neutral);
+  --focus-room:var(--accent); --focus-felt:var(--accent); --focus:var(--accent);
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --room:#0D1412; --room-2:#17211E; --ink:#E8E3D5; --ink-soft:#A9B5AE; --line:#2F3C37; --pos:#93D9A6; --neg:#F5A99E;
-    --felt:#123B32; --felt-2:#0B2C25; --rail:#1F1712; --rail-2:#2B2019; --card:#F3EEE2; --shadow:rgba(0,0,0,.5);
-    --focus-room:#F5C842; color-scheme:dark;
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F4F9; --surface:#FFFFFF; --surface-raised:#E9EDF5; --border:#CAD2E1;
+    --text:#182135; --text-muted:#516079;
+    --accent:#6038BB; --accent-hover:#512BA4; --accent-soft:#EEE8FA; --on-accent:#FFFFFF;
+    --success:#12663F; --danger:#AD2545; --neutral:#78500C; --blue:#205BA6; --red:#AD2545;
+    --heat-0:#635B78; --heat-1:#695486; --heat-2:#684898; --heat-3:#6038BB;
+    --shadow-color:rgba(27,39,65,.12); --grid-line:rgba(81,96,121,.15);
+    color-scheme:light;
   }
 }
-:root[data-theme="dark"]{
-  --room:#0D1412; --room-2:#17211E; --ink:#E8E3D5; --ink-soft:#A9B5AE; --line:#2F3C37; --pos:#93D9A6; --neg:#F5A99E;
-  --felt:#123B32; --felt-2:#0B2C25; --rail:#1F1712; --rail-2:#2B2019; --card:#F3EEE2; --shadow:rgba(0,0,0,.5);
-  --focus-room:#F5C842; color-scheme:dark;
+:root[data-theme="light"]{
+  --bg:#F2F4F9; --surface:#FFFFFF; --surface-raised:#E9EDF5; --border:#CAD2E1;
+  --text:#182135; --text-muted:#516079;
+  --accent:#6038BB; --accent-hover:#512BA4; --accent-soft:#EEE8FA; --on-accent:#FFFFFF;
+  --success:#12663F; --danger:#AD2545; --neutral:#78500C; --blue:#205BA6; --red:#AD2545;
+  --heat-0:#635B78; --heat-1:#695486; --heat-2:#684898; --heat-3:#6038BB;
+  --shadow-color:rgba(27,39,65,.12); --grid-line:rgba(81,96,121,.15);
+  color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
-html,body{overflow-x:clip}
 body{background:var(--room);color:var(--ink);font:15px/1.5 var(--sans);-webkit-text-size-adjust:100%;font-variant-numeric:tabular-nums}
 h1,h2,h3,p{margin:0}
 button,input,select{font:inherit;color:inherit}
@@ -57,39 +76,38 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .felt{--focus:var(--focus-felt)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-.app{max-width:40rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px;display:flex;flex-direction:column;gap:14px}
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px 10px;background:var(--room);border-bottom:1px solid var(--line)}
+.app{max-width:var(--content-width);margin:0 auto;padding:calc(var(--header-height) + env(safe-area-inset-top,0px) + var(--space-4)) max(16px,env(safe-area-inset-right,0px)) 300px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:var(--space-4)}
+.top{position:fixed;top:0;left:0;right:0;z-index:20;min-height:calc(var(--header-height) + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,calc((100vw - var(--content-width)) / 2 + 16px),env(safe-area-inset-right,0px)) 12px max(16px,calc((100vw - var(--content-width)) / 2 + 16px),env(safe-area-inset-left,0px));background:var(--bg);border-bottom:1px solid var(--border)}
 .brand{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.brand h1{font:italic 600 28px/1 var(--display);letter-spacing:.01em}
-.brand span{font-size:12px;color:var(--ink-soft);letter-spacing:.06em;margin-top:4px}
+.brand h1{font:700 var(--text-lg)/1.2 var(--sans);letter-spacing:-.04em}
+.brand span{font-size:var(--text-xs);color:var(--text-muted);margin-top:6px}
 .wallet{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
 .wallet span{font-size:12px;color:var(--ink-soft);letter-spacing:.06em}
-.wallet strong{font:700 26px/1.1 var(--display);transition:color .4s}
+.wallet strong{font:700 clamp(24px,8vw,var(--text-balance))/1.2 var(--sans);letter-spacing:-.04em;transition:color var(--motion)}
 .wallet strong.up{color:var(--pos)} .wallet strong.down{color:var(--neg)}
 .refill{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:10px 14px;border-radius:12px;background:var(--room-2);border:1px solid var(--line)}
 .refill button{background:var(--felt);color:var(--on-felt);padding:0 16px;font-weight:600}
 
-.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-1)}
 @media (min-width:560px){.tabs{grid-template-columns:repeat(6,minmax(0,1fr))}}
-.tab{background:var(--room-2);border:1px solid var(--line);color:var(--ink);font-weight:600;padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
-.tab small{font-size:11px;font-weight:500;color:var(--ink-soft);margin-top:2px}
-.tab[aria-selected="true"]{background:var(--felt);border-color:var(--felt);color:var(--on-felt)}
+.tab{min-width:44px;min-height:64px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-muted);font-size:11px;font-weight:600;padding:8px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;line-height:1.15;transition:background var(--motion),color var(--motion),border-color var(--motion)}
+.tab small{display:none}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .tab[aria-selected="true"] small{color:var(--on-felt-soft)}
 
-.panel{border-radius:16px;overflow:hidden;background:var(--felt);color:var(--on-felt);box-shadow:0 14px 34px -16px var(--shadow)}
-.table{padding:16px 14px 18px;display:flex;flex-direction:column;gap:14px;background-color:var(--felt);background-image:radial-gradient(120% 70% at 50% 0%,transparent 55%,var(--shade-edge) 100%)}
-.rail{background:var(--rail);color:var(--on-rail);padding:14px 12px;display:flex;flex-direction:column;gap:12px;border-top:3px solid var(--rail-2)}
+.panel{border-radius:var(--radius-lg);background:var(--surface);color:var(--text);border:1px solid var(--border);min-width:0}
+.table{padding:var(--space-4) var(--space-3);display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.rail{position:fixed;z-index:25;bottom:0;left:0;right:0;max-width:var(--content-width);margin-inline:auto;background:var(--surface);color:var(--text);padding:12px max(16px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:var(--space-2);border:1px solid var(--border);border-bottom:0;border-radius:var(--radius-lg) var(--radius-lg) 0 0;box-shadow:var(--shadow-bar);max-height:calc(100dvh - var(--header-height) - env(safe-area-inset-top,0px));overflow-y:auto}
 .seat{display:flex;flex-direction:column;gap:8px;align-items:center}
 .seat-head{display:flex;align-items:center;gap:8px;min-height:28px;width:100%}
-.seat-head h2{font:600 13px/1 var(--sans);letter-spacing:.08em;color:var(--on-felt-soft)}
+.seat-head h2{font:600 var(--text-sm)/1.3 var(--sans);color:var(--text-muted)}
 .pill{display:inline-flex;align-items:center;min-height:24px;padding:2px 10px;border-radius:999px;background-color:var(--felt-2);color:var(--on-felt);font-weight:700;font-size:13px;white-space:nowrap}
 .pill.soft{font-weight:500;color:var(--on-felt-soft)}
 .pill.win{color:var(--win)} .pill.lose{color:var(--lose)} .pill.push{color:var(--push)}
 .msg{min-height:1.5em;font-weight:600;text-align:center;text-wrap:balance}
 .msg.win{color:var(--win)} .msg.lose{color:var(--lose)} .msg.push{color:var(--push)}
-.print{display:block;width:100%;max-width:340px;height:auto;margin:0 auto -6px;color:var(--on-felt-soft)}
-.print text{font:600 15px var(--display);letter-spacing:.2em}
-.print-sub{font-size:12px;letter-spacing:.06em;color:var(--on-felt-soft);text-align:center}
+.print{display:flex;align-items:center;justify-content:center;gap:var(--space-2);font-size:var(--text-xs);color:var(--text-muted)}
+.print-sub{font-size:var(--text-xs);color:var(--text-muted);text-align:center}
 .shoe{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--on-felt-soft)}
 .shoe-bar{position:relative;width:56px;height:6px;border-radius:3px;background-color:var(--felt-2);overflow:hidden}
 .shoe-bar i{position:absolute;inset:0 auto 0 0;background:var(--on-felt-soft)}
@@ -97,7 +115,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 
 /* cards */
 .hand-cards{display:flex;align-items:center;justify-content:center;min-height:calc(var(--cw)*1.4)}
-.card{width:var(--cw);height:calc(var(--cw)*1.4);flex:none;position:relative;border-radius:calc(var(--cw)*.1);background-color:var(--card);border:1px solid var(--card-edge);color:var(--suit-black);box-shadow:0 3px 8px -2px var(--shadow);font-family:var(--display)}
+.card{width:var(--cw);height:calc(var(--cw)*1.4);flex:none;position:relative;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--card-edge);color:var(--suit-black);box-shadow:var(--shadow-card);font-family:var(--sans)}
 .card+.card,.slot+.slot{margin-left:calc(var(--cw)*-.5)}
 .slot+.slot{margin-left:8px}
 .card.red{color:var(--suit-red)}
@@ -105,13 +123,13 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .card .ix i{font-style:normal;font-family:var(--sans);font-size:.8em}
 .card .pip{position:absolute;inset:24% 8% 8% 24%;display:grid;place-items:center;font-family:var(--sans);font-size:calc(var(--cw)*.46)}
 .card .pip.face{font-family:var(--display);font-weight:700;font-size:calc(var(--cw)*.5)}
-.card.back{background-color:var(--back);background-image:repeating-linear-gradient(45deg,var(--back-line) 0 1px,transparent 1px 7px),repeating-linear-gradient(-45deg,var(--back-line) 0 1px,transparent 1px 7px);border:3px solid var(--card)}
+.card.back{background-color:var(--back);background-image:repeating-linear-gradient(45deg,var(--back-line) 0 1px,transparent 1px 12px);border:2px solid var(--card)}
 .card.side{rotate:90deg;margin-left:calc(var(--cw)*.28);margin-right:calc(var(--cw)*.2)}
 .slot{width:var(--cw);height:calc(var(--cw)*1.4);flex:none;border:1.5px dashed var(--felt-line);border-radius:calc(var(--cw)*.1)}
-@keyframes deal{from{transform:translate(40px,-60px) rotate(12deg);opacity:0}}
+@keyframes deal{from{transform:translateY(8px);opacity:0}}
 @keyframes flip{from{transform:rotateY(90deg)}}
-.card.enter{animation:deal .34s cubic-bezier(.2,.8,.3,1) var(--d,0ms) both}
-.card.flip{animation:flip .3s ease-out both}
+.card.enter{animation:deal var(--motion) ease-out var(--d,0ms) both}
+.card.flip{animation:flip var(--motion) ease-out both}
 
 /* blackjack */
 #bjDealer{--cw:clamp(54px,16.5vw,78px)}
@@ -122,17 +140,17 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .hand-meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 
 /* rail controls */
-.betbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
-.betamt{display:flex;align-items:baseline;gap:8px;margin-right:auto}
+.betbar{display:grid;gap:var(--space-2)}
+.betamt{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-2)}
 .betamt span{font-size:13px;color:var(--on-rail-soft)}
-.betamt output{font:700 24px/1 var(--display)}
-.chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.chip{width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;background-color:var(--c);background-image:repeating-conic-gradient(var(--chip-edge) 0 10deg,transparent 10deg 45deg);color:var(--chip-ink);font:700 13px/1 var(--sans);position:relative;isolation:isolate;box-shadow:0 2px 0 var(--shade-deep)}
-.chip::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--c);border:1.5px dashed var(--chip-edge);z-index:-1}
-.chip:not(:disabled):active{transform:translateY(1px)}
+.betamt output{font:700 var(--text-xl)/1.2 var(--sans);letter-spacing:-.03em}
+.chips{display:grid;grid-template-columns:repeat(4,minmax(44px,1fr)) minmax(60px,1.2fr);gap:var(--space-1)}
+.chip{height:44px;min-width:44px;border-radius:var(--radius-pill);background:var(--surface-raised);border:1px solid var(--border);color:var(--text);font:600 var(--text-sm)/1 var(--sans);transition:background var(--motion),border-color var(--motion)}
+.chip::before{content:none}
+.chip:not(:disabled):active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .c10{--c:var(--chip-10)} .c50{--c:var(--chip-50)} .c100{--c:var(--chip-100)} .c500{--c:var(--chip-500)}
-.ghost{border:1px solid var(--on-rail-soft);color:var(--on-rail);padding:0 10px;font-size:14px}
-.go{width:100%;min-height:52px;background:var(--brass);color:var(--brass-ink);font-weight:700;font-size:17px;letter-spacing:.02em}
+.ghost{border:1px solid var(--border);color:var(--text);padding:0 8px;font-size:var(--text-sm)}
+.go{width:100%;min-height:48px;border-radius:var(--radius-md);background:var(--accent);color:var(--on-accent);font-weight:700;font-size:16px;transition:background var(--motion)}
 .go:not(:disabled):hover{background:var(--brass-hi)}
 .go.alt{background:var(--on-rail);color:var(--rail)}
 .acts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -169,7 +187,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .sq-label{font-weight:700;letter-spacing:.04em}
 .sq-card{--sw:min(200px,54vw);position:relative;width:var(--sw);height:calc(var(--sw)*1.4);border-radius:calc(var(--sw)*.07);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;box-shadow:0 12px 26px -10px var(--shadow)}
 .sq-card:active{cursor:grabbing}
-.sq-face,.sq-back{position:absolute;inset:0;border-radius:inherit}
+.sq-face,.sq-back{background-color:var(--back);background-image:repeating-linear-gradient(45deg,var(--back-line) 0 1px,transparent 1px 16px);border:3px solid var(--card)}
 .sq-face{background-color:var(--card);border:1px solid var(--card-edge);color:var(--suit-black);overflow:hidden}
 .sq-face.red{color:var(--suit-red)}
 .sq-face i{position:absolute;transform:translate(-50%,-50%);font-style:normal;font-family:var(--sans);font-size:calc(var(--sw)*.17);line-height:1}
@@ -178,7 +196,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .sq-court{position:absolute;inset:13% 17%;border:2px solid currentColor;border-radius:6px;background-color:var(--court);display:grid;place-items:center;align-content:center;gap:6px;font:700 calc(var(--sw)*.34)/1 var(--display)}
 .sq-court span{font:calc(var(--sw)*.14)/1 var(--sans)}
 .sq-back{background-color:var(--back);background-image:repeating-linear-gradient(45deg,var(--back-line) 0 1px,transparent 1px 8px),repeating-linear-gradient(-45deg,var(--back-line) 0 1px,transparent 1px 8px);border:5px solid var(--card)}
-.sq-card.opening .sq-back{transition:clip-path .35s ease-out}
+.sq-card.opening .sq-back{transition:clip-path var(--motion) ease-out}
 .sq-curl{position:absolute;pointer-events:none}
 .sq-curl:not(.h):not(.v){display:none}
 .sq-curl.h{left:0;right:0;height:14%;transform:translateY(50%);background:linear-gradient(to bottom,transparent,var(--curl-hi) 46%,var(--curl-shadow) 52%,transparent)}
@@ -190,13 +208,13 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .ghost[aria-pressed="true"]{background-color:var(--brass);color:var(--brass-ink);border-color:var(--brass)}
 
 /* odd-even */
-.bowl{position:relative;width:min(190px,58vw);aspect-ratio:1;max-width:100%;margin:4px auto 0;border-radius:50%;background-color:var(--felt-2);box-shadow:inset 0 6px 18px var(--shade-deep),0 0 0 6px var(--lid),0 0 0 8px var(--lid-2)}
-.stone{position:absolute;width:12%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background-color:var(--stone);background-image:radial-gradient(circle at 35% 30%,var(--glint) 0 18%,transparent 45%);box-shadow:0 2px 3px var(--shade-deep),inset 0 -2px 3px var(--stone-edge)}
+.bowl{position:relative;width:min(164px,48vw);aspect-ratio:1;max-width:100%;margin:var(--space-2) auto;border-radius:50%;background:var(--surface-raised);border:1px solid var(--border)}
+.stone{position:absolute;width:12%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:var(--text)}
 @keyframes pop{from{transform:translate(-50%,-50%) scale(.2);opacity:0}}
-.bowl.open .stone{animation:pop .3s cubic-bezier(.2,.9,.3,1.3) both;animation-delay:calc(var(--i)*28ms)}
-.lid{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background-color:var(--lid);background-image:repeating-radial-gradient(circle at 50% 50%,transparent 0 9px,var(--shade-ring) 9px 11px);color:var(--on-felt);font:italic 600 54px/1 var(--display);box-shadow:inset 0 -8px 16px var(--shade-deep)}
+.bowl.open .stone{animation:pop var(--motion) ease-out both;animation-delay:calc(var(--i)*28ms)}
+.lid{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background:var(--surface-raised);color:var(--accent);font:700 44px/1 var(--sans)}
 @keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg) translateX(-4px)}40%{transform:rotate(6deg) translateX(4px)}60%{transform:rotate(-5deg)}80%{transform:rotate(4deg)}}
-.bowl.shaking .lid{animation:shake .45s ease-in-out infinite}
+.bowl.shaking .lid{animation:shake var(--motion) ease-in-out}
 .oe-count{text-align:center;font:600 22px/1.2 var(--display);min-height:1.2em}
 
 /* crash */
@@ -207,8 +225,8 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .mult.bust{color:var(--lose)} .mult.cashed small{color:var(--win)}
 
 /* mines */
-.mgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;width:100%;max-width:340px;margin:0 auto}
-.tile{aspect-ratio:1;min-height:44px;min-width:44px;border-radius:10px;background-color:var(--felt-2);border:1.5px solid var(--felt-line);font-size:22px;font-weight:700;color:var(--on-felt-soft);display:grid;place-items:center;transition:transform .12s}
+.mgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;width:100%;max-width:280px;margin:0 auto}
+.tile{aspect-ratio:1;min-height:44px;min-width:44px;border-radius:10px;background-color:var(--felt-2);border:1.5px solid var(--felt-line);font-size:22px;font-weight:700;color:var(--on-felt-soft);display:grid;place-items:center;transition:transform var(--motion)}
 .tile:not(:disabled):hover{transform:translateY(-2px);border-color:var(--brass)}
 .tile.gem{background-color:var(--on-felt);color:var(--felt);border-color:var(--on-felt)}
 .tile.mine{color:var(--lose)}
@@ -225,14 +243,14 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .pslot.h0{background-color:var(--heat-0)} .pslot.h1{background-color:var(--heat-1)} .pslot.h2{background-color:var(--heat-2)} .pslot.h3{background-color:var(--heat-3)}
 .pslot.flash{transform:translateY(5px)}
 
-/* scoreboards: the paper result card a casino hands out, drawn as an LED board */
-.sb{--cell:20px;background:var(--led-bg);color:var(--led-text);padding:14px 12px 16px;display:flex;flex-direction:column;gap:12px;border-top:3px solid var(--rail-2)}
+/* Scoreboards: shared dashboard statistics, roads and outcome markers. */
+.sb{--cell:22px;background:var(--surface);color:var(--text);padding:var(--space-4) var(--space-3);display:flex;flex-direction:column;gap:var(--space-4);border-top:1px solid var(--border);min-width:0;border-radius:0 0 var(--radius-lg) var(--radius-lg)}
 .sb-head{display:flex;align-items:center;gap:10px}
-.sb-head h2{font:italic 600 20px/1 var(--display)}
-.sb-led{margin-left:auto;border:1px solid var(--led-soft);color:var(--led-text);padding:0 14px;font-weight:600;font-size:14px}
+.sb-head h2{font:700 18px/1.3 var(--sans)}
+.sb-led{margin-left:auto;border:1px solid var(--border);color:var(--text);padding:0 12px;font-weight:600;font-size:var(--text-xs)}
 .sb-body{display:flex;flex-direction:column;gap:12px;min-width:0}
-.sb-stats{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:13px}
-.sb-stats div{display:flex;gap:5px;align-items:baseline}
+.sb-stats{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0;font-size:var(--text-sm);padding:var(--space-3);background:var(--surface-raised);border-radius:var(--radius-md)}
+.sb-stats div{display:flex;gap:6px;align-items:baseline}
 .sb-stats dt{color:var(--led-soft)}
 .sb-stats dd{margin:0;font-weight:700}
 .sb-stats .B dd,.sb-stats .L dd{color:var(--led-red)} .sb-stats .P dd{color:var(--led-blue)}
@@ -286,7 +304,7 @@ button:disabled{cursor:not-allowed;opacity:.42}
 .led{position:fixed;inset:0;z-index:50;background:var(--led-bg);color:var(--led-text);display:flex;flex-direction:column;gap:14px;overflow:auto;padding-block:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 body.led-on{overflow:hidden}
 .led-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
-.led-top h2{font:italic 600 clamp(24px,3.4vw,52px)/1 var(--display)}
+.led-top h2{font:700 clamp(24px,3.4vw,48px)/1.2 var(--sans);letter-spacing:-.04em}
 .led-ctl{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px}
 .led-ctl button,.led-ctl a{min-height:44px;min-width:44px;padding:0 14px;border:1px solid var(--led-soft);border-radius:10px;color:var(--led-text);background-color:var(--led-panel);display:inline-flex;align-items:center;justify-content:center;font:600 15px/1 var(--sans);text-decoration:none}
 .led-ctl [aria-pressed="true"]{background-color:var(--led-gold);border-color:var(--led-gold);color:var(--led-bg)}
@@ -304,7 +322,7 @@ body.led-on{overflow:hidden}
 
 /* info */
 .info{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:var(--room-2);border:1px solid var(--line)}
-.info h2{font:italic 600 22px/1.1 var(--display)}
+.info h2{font:700 var(--text-lg)/1.3 var(--sans)}
 .scroll{overflow-x:auto}
 .stats{width:100%;border-collapse:collapse;font-size:14px}
 .stats th,.stats td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -325,6 +343,70 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
   .card.enter,.card.flip,.bowl.open .stone,.bowl.shaking .lid{animation:none}
   .tile,.pslot,.wallet strong,.sq-card.opening .sq-back{transition:none}
 }
+
+/* Shared visual hierarchy and responsive layout. */
+.tab svg{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.game-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:var(--space-3);border-bottom:1px solid var(--border)}
+.game-heading h2{font-size:var(--text-lg);letter-spacing:-.04em}
+.game-heading span{font-size:var(--text-xs);color:var(--text-muted)}
+#panel-blackjack .table{gap:var(--space-2)}
+.rule-badge{border:1px solid var(--border);border-radius:var(--radius-pill);padding:4px 10px}
+.chip:not(:disabled):hover{border-color:var(--accent);background:var(--accent-soft)}
+.chip:focus-visible{background:var(--accent-soft);outline-color:var(--accent)}
+.field{gap:8px}.field .hint{font-size:var(--text-xs)}
+.rail .zones{order:-1}.rail .zone{min-height:56px;font-size:var(--text-sm);border-width:1px}
+.zone[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--z)}
+.ze{--z:var(--accent)}
+.sq-card{--sw:min(164px,48vw);box-shadow:var(--shadow-card)}
+.sq-curl{opacity:.5}
+.panel:has(.squeeze:not([hidden]))>.rail{display:none}
+.sq-btns{position:fixed;z-index:25;bottom:0;left:0;right:0;max-width:var(--content-width);margin-inline:auto;padding:12px max(16px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;box-shadow:var(--shadow-bar)}
+#bacPSide .seat-head h2{color:var(--blue)}#bacBSide .seat-head h2{color:var(--red)}
+.wallet strong.up{animation:balance-rise var(--motion) ease-out}
+@keyframes balance-rise{from{transform:translateY(6px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.info{padding:var(--space-4);border-radius:var(--radius-lg)}
+.info .stats{font-size:var(--text-xs)}.stats th,.stats td{padding:10px 4px}
+.led{background:var(--bg);gap:var(--space-5)}
+.led-top{padding-bottom:var(--space-4);border-bottom:1px solid var(--border)}
+.led-body .sb-stats{background:var(--surface);padding:var(--space-4);border:1px solid var(--border)}
+.led-body .sb-stats div{gap:12px}.led-body .sb-stats dd{font-size:1.25em}
+.led-body .sb-block{padding:var(--space-3);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md)}
+.led-body .sb-block h3{font-size:clamp(14px,1.7vw,24px);margin-bottom:8px}
+.led-body .rd-scroll{background:var(--surface)}
+.sb-block{container-type:inline-size}
+.sb-block>.rd-scroll{width:100%;width:round(down,100cqw,var(--cell))}
+@media (min-width:900px){
+  .led-body{--cell:clamp(18px,calc((100dvh - 350px) / 9.5),72px)!important}
+}
+@media (min-width:760px){
+  .app{gap:var(--space-5);padding-bottom:240px}
+  .tabs{gap:var(--space-2)}.tab{flex-direction:row;gap:10px;min-height:56px;font-size:var(--text-sm)}
+  .panel{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start}
+  .table{padding:var(--space-5);gap:var(--space-5)}
+  .sb{border-top:0;border-left:1px solid var(--border);padding:var(--space-5);border-radius:0 var(--radius-lg) var(--radius-lg) 0;min-height:100%}
+  .rail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 24px;padding:16px 24px max(16px,env(safe-area-inset-bottom,0px))}
+  .rail>div[data-betbar]{grid-column:1;grid-row:1 / span 2}
+  .rail>.go,.rail>.field,.rail>.zones{grid-column:2}
+  .rail:has(#bjBet),.rail:has(#bjPlay:not([hidden])){display:block}
+  #bjBet:not([hidden]){display:grid!important;grid-template-columns:1fr 1fr;align-items:end;gap:24px!important}
+  .rail:has(#oePlayBtn)>[data-betbar]{grid-row:1 / span 2}
+  .rail:has(#bacDealBtn)>[data-betbar]{grid-column:1;grid-row:1}
+  .rail:has(#bacDealBtn)>.field{grid-column:1;grid-row:2}
+  .rail:has(#bacDealBtn)>.zones{grid-column:2;grid-row:1;align-self:end}
+  .rail:has(#bacDealBtn)>.go{grid-column:2;grid-row:2;align-self:end}
+  .graph{height:280px}.mult{font-size:64px}
+  #bjDealer,.hands{--cw:82px}.bac-hands{--cw:70px}
+  .info .stats{font-size:var(--text-sm)}
+}
+@media (max-width:359px){
+  .app{padding-inline:max(12px,env(safe-area-inset-left,0px)) max(12px,env(safe-area-inset-right,0px))}
+  .rail{padding-inline:max(12px,env(safe-area-inset-left,0px)) max(12px,env(safe-area-inset-right,0px))}
+  .field .hint{flex-basis:100%}.rail .field .hint{display:none}
+  .brand h1{font-size:18px}.wallet strong{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>
@@ -341,23 +423,24 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
   </div>
 
   <nav class="tabs" role="tablist" aria-label="게임">
-    <button type="button" class="tab" role="tab" id="tab-blackjack" aria-controls="panel-blackjack" aria-selected="true">블랙잭<small>21</small></button>
-    <button type="button" class="tab" role="tab" id="tab-baccarat" aria-controls="panel-baccarat" aria-selected="false" tabindex="-1">바카라<small>P · B · T</small></button>
-    <button type="button" class="tab" role="tab" id="tab-oddeven" aria-controls="panel-oddeven" aria-selected="false" tabindex="-1">홀짝<small>바둑돌</small></button>
-    <button type="button" class="tab" role="tab" id="tab-crash" aria-controls="panel-crash" aria-selected="false" tabindex="-1">그래프<small>크래시</small></button>
-    <button type="button" class="tab" role="tab" id="tab-mines" aria-controls="panel-mines" aria-selected="false" tabindex="-1">마인<small>5 × 5</small></button>
-    <button type="button" class="tab" role="tab" id="tab-plinko" aria-controls="panel-plinko" aria-selected="false" tabindex="-1">플링코<small>12줄</small></button>
+    <button type="button" class="tab" role="tab" id="tab-blackjack" aria-controls="panel-blackjack" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="m12 7 4 5-4 5-4-5Z"/></svg>블랙잭<small>21</small></button>
+    <button type="button" class="tab" role="tab" id="tab-baccarat" aria-controls="panel-baccarat" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="11" height="15" rx="2"/><path d="M10 3h9a2 2 0 0 1 2 2v12M8 9v7m-2-5h4"/></svg>바카라<small>P · B · T</small></button>
+    <button type="button" class="tab" role="tab" id="tab-oddeven" aria-controls="panel-oddeven" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4"/><circle cx="16" cy="16" r="4"/><path d="m5 19 14-14"/></svg>홀짝<small>바둑돌</small></button>
+    <button type="button" class="tab" role="tab" id="tab-crash" aria-controls="panel-crash" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M6 16l5-4 4 1 6-9m-5 0h5v5"/></svg>그래프<small>크래시</small></button>
+    <button type="button" class="tab" role="tab" id="tab-mines" aria-controls="panel-mines" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 7-8 11L4 10Z M4 10h16M8 10l4 11 4-11M8 10l4-7 4 7"/></svg>마인<small>5 × 5</small></button>
+    <button type="button" class="tab" role="tab" id="tab-plinko" aria-controls="panel-plinko" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="M8 10h.01M16 10h.01M4 16h.01M12 16h.01M20 16h.01M3 21h18"/></svg>플링코<small>12줄</small></button>
   </nav>
 
   <main>
     <!-- 블랙잭 -->
     <section class="panel felt" id="panel-blackjack" role="tabpanel" aria-labelledby="tab-blackjack">
       <div class="table">
+        <div class="game-heading"><h2>블랙잭</h2><span>21에 가까이</span></div>
         <div class="seat">
           <div class="seat-head"><h2>딜러</h2><span class="pill" id="bjDealerTotal" hidden></span><span class="shoe" id="bjShoe"></span></div>
           <div class="hand-cards" id="bjDealer"></div>
         </div>
-        <svg class="print" viewBox="0 0 320 58" aria-hidden="true"><path id="bjArc" d="M14 54 Q160 -2 306 54" fill="none"/><text fill="currentColor"><textPath href="#bjArc" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text></svg>
+        <div class="print"><span class="rule-badge" id="bjArc">블랙잭 3 : 2</span></div>
         <p class="print-sub">딜러는 모든 17에서 멈춥니다 · 보험 없음</p>
         <div class="seat">
           <div class="seat-head"><h2>내 패</h2></div>
@@ -382,11 +465,12 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
     <!-- 바카라 -->
     <section class="panel felt" id="panel-baccarat" role="tabpanel" aria-labelledby="tab-baccarat" hidden>
       <div class="table">
+        <div class="game-heading"><h2>바카라</h2><span>플레이어 · 뱅커 · 타이</span></div>
         <div class="bac-hands">
           <div class="bac-side" id="bacPSide"><div class="seat-head"><h2>플레이어</h2><span class="pill" id="bacPT" hidden></span></div><div class="hand-cards" id="bacP"></div></div>
           <div class="bac-side" id="bacBSide"><div class="seat-head"><h2>뱅커</h2><span class="pill" id="bacBT" hidden></span></div><div class="hand-cards" id="bacB"></div></div>
         </div>
-        <svg class="print" id="bacPrint" viewBox="0 0 320 58" aria-hidden="true"><path id="bacArc" d="M14 54 Q160 -2 306 54" fill="none"/><text fill="currentColor"><textPath href="#bacArc" startOffset="50%" text-anchor="middle">TIE PAYS 8 TO 1</textPath></text></svg>
+        <div class="print" id="bacPrint"><span class="rule-badge" id="bacArc">타이 8 : 1</span></div>
         <div class="squeeze" id="bacSqueeze" hidden>
           <p class="sq-label" id="sqLabel"></p>
           <div class="sq-card" id="sqCard" tabindex="0" role="slider" aria-label="카드 쪼기" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-describedby="sqHint">
@@ -401,15 +485,16 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
             <button type="button" class="primary" data-act="sq-open">열기</button>
           </div>
         </div>
+
+        <p class="msg" id="bacMsg" role="status" aria-live="polite"></p>
+        <div class="seat-head"><span class="shoe" id="bacShoe"></span></div>
+      </div>
+      <div class="rail">
         <div class="zones" id="bacZones" role="group" aria-label="걸 곳">
           <button type="button" class="zone zp" data-act="bac-side" data-v="player" aria-pressed="false">플레이어<small>1 : 1</small></button>
           <button type="button" class="zone zt" data-act="bac-side" data-v="tie" aria-pressed="false">타이<small>8 : 1</small></button>
           <button type="button" class="zone zb" data-act="bac-side" data-v="banker" aria-pressed="true">뱅커<small>0.95 : 1</small></button>
         </div>
-        <p class="msg" id="bacMsg" role="status" aria-live="polite"></p>
-        <div class="seat-head"><span class="shoe" id="bacShoe"></span></div>
-      </div>
-      <div class="rail">
         <div data-betbar="baccarat"></div>
         <div class="field"><button type="button" class="ghost" data-act="bac-squeeze" id="bacSqBtn" aria-pressed="true">카드 쪼기 켬</button><span class="hint">건 쪽 카드를 직접 쪼아서 열어요</span></div>
         <button type="button" class="go" data-act="bac-deal" data-primary id="bacDealBtn">딜</button>
@@ -419,15 +504,17 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
     <!-- 홀짝 -->
     <section class="panel felt" id="panel-oddeven" role="tabpanel" aria-labelledby="tab-oddeven" hidden>
       <div class="table">
+        <div class="game-heading"><h2>홀짝</h2><span>한 번의 선택</span></div>
         <div class="bowl" id="oeBowl" role="img" aria-label="뚜껑 덮인 바둑통"></div>
         <p class="oe-count" id="oeCount"></p>
+
+        <p class="msg" id="oeMsg" role="status" aria-live="polite"></p>
+      </div>
+      <div class="rail">
         <div class="zones two" role="group" aria-label="고를 쪽">
           <button type="button" class="zone zo" data-act="oe-pick" data-v="odd" aria-pressed="true">홀<small>1.95배</small></button>
           <button type="button" class="zone ze" data-act="oe-pick" data-v="even" aria-pressed="false">짝<small>1.95배</small></button>
         </div>
-        <p class="msg" id="oeMsg" role="status" aria-live="polite"></p>
-      </div>
-      <div class="rail">
         <div data-betbar="oddeven"></div>
         <button type="button" class="go" data-act="oe-play" data-primary id="oePlayBtn">돌 펼치기</button>
       </div>
@@ -436,6 +523,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
     <!-- 그래프 -->
     <section class="panel felt" id="panel-crash" role="tabpanel" aria-labelledby="tab-crash" hidden>
       <div class="table">
+        <div class="game-heading"><h2>그래프</h2><span>올라가는 배수</span></div>
         <div class="graph"><canvas id="crCanvas" aria-hidden="true"></canvas><div class="mult" id="crMult" aria-hidden="true">1.00×<small>시작을 누르면 배수가 올라가요</small></div></div>
         <p class="msg" id="crMsg" role="status" aria-live="polite"></p>
       </div>
@@ -450,6 +538,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
     <!-- 마인 -->
     <section class="panel felt" id="panel-mines" role="tabpanel" aria-labelledby="tab-mines" hidden>
       <div class="table">
+        <div class="game-heading"><h2>마인</h2><span>5 × 5</span></div>
         <div class="mhead"><span class="pill" id="mnInfo"></span><span class="pill soft" id="mnNext"></span></div>
         <div class="mgrid" id="mnGrid" role="group" aria-label="지뢰판"></div>
         <p class="msg" id="mnMsg" role="status" aria-live="polite"></p>
@@ -465,6 +554,7 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:p
     <!-- 플링코 -->
     <section class="panel felt" id="panel-plinko" role="tabpanel" aria-labelledby="tab-plinko" hidden>
       <div class="table">
+        <div class="game-heading"><h2>플링코</h2><span>12줄의 경로</span></div>
         <div class="board"><canvas id="plCanvas" aria-hidden="true"></canvas><div class="pslots" id="plSlots"></div></div>
         <p class="msg" id="plMsg" role="status" aria-live="polite"></p>
       </div>
