@@ -6,6 +6,7 @@
 
 - `index.html` 한 파일짜리 가상 칩 게임룸(블랙잭·바카라·홀짝·그래프·마인·플링코). HTML·CSS·순수 JS, 빌드 도구 없음.
 - GitHub Pages로 배포하고, claude.ai 아티팩트(보안이 걸린 iframe)에서도 그대로 돌아가야 한다.
+- `play/start.bat`은 Windows 실행기다. main의 `index.html`을 받아 `play/gamble.html`로 연다. ASCII와 CRLF만 쓰고, 받기 말고 다른 통신은 넣지 않는다. 받은 파일은 `gamble-v1` 문자열이 있어야 덮어쓰므로 저장 키를 바꾸면 실행기도 같이 고친다.
 
 ## 작업 흐름
 
